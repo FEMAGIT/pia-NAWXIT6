@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifica classificazione{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header text-center">
+        <h2>MODIFICA CLASSIFICAZIONE</h2>
+    </div>
+    <div class="card-body">
+
+      <form method="post">
+          {% csrf_token %}
+          <div class="row justify-content-center">
+              <div class="col-lg-10">
+                  <div class="form-group row mb-3">
+                      <label class="col-sm-2 col-form-label text-center">
+                          {{ form.manutenzione.label }}
+                      </label>
+                      <div class="col-sm-3">
+                          {{ form.manutenzione }}
+                          {% if form.manutenzione.errors %}
+                              <div class="text-danger">{{ form.manutenzione.errors }}</div>
+                          {% endif %}
+                      </div>
+
+                      <label class="col-sm-2 col-form-label text-center">
+                          {{ form.assistenza.label }}
+                      </label>
+                      <div class="col-sm-5">
+                          {{ form.assistenza }}
+                          {% if form.assistenza.errors %}
+                              <div class="text-danger">{{ form.assistenza.errors }}</div>
+                          {% endif %}
+                      </div>
+                  </div>
+
+                  <div class="form-group row mb-3">
+                      <label class="col-sm-2 col-form-label text-center">
+                          {{ form.macchine.label }}
+                      </label>
+                      <div class="col-sm-4">
+                          {{ form.macchine }}
+                          {% if form.macchine.errors %}
+                              <div class="text-danger">{{ form.macchine.errors }}</div>
+                          {% endif %}
+                      </div>
+
+                      <label class="col-sm-2 col-form-label text-center">
+                          {{ form.data.label }}
+                      </label>
+                      <div class="col-sm-4">
+                          {{ form.data }}
+                          {% if form.data.errors %}
+                              <div class="text-danger">{{ form.data.errors }}</div>
+                          {% endif %}
+                      </div>
+                  </div>
+
+                  <div class="form-group row mb-0 justify-content-center">
+                      <div class="col-12 text-center">
+                          <button type="submit" class="btn btn-dark">Salva</button>
+                      </div>
+                  </div>
+
+              </div>
+          </div>
+      </form>
+
+
+    </div>
+</div>
+
+<script>
+    function setToday() {
+        const today = new Date();
+        const date = today.toISOString().split('T')[0];
+        document.getElementById("{{ form.data.id_for_label }}").value = date;
+    }
+</script>
+
+{% endblock %}

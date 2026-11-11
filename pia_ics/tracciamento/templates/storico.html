@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container p-4 bg-white text-dark tracciamento-split-border w-100 max-width-50-custom">
+    {% if commesse %}
+        <div class="row py-2 py-sm-2">
+            <!-- Colonna per l'intestazione -->
+            <div class="col-6">
+                <div class="header">
+                    <h4>{{ cliente }}</h4>
+                </div>
+            </div>
+
+            <!-- Colonna per la qualità -->
+            <div class="col-6 text-end">
+                <h4>
+                    Valore della qualità: {{ qualità }}
+                </h4>
+            </div>
+        </div>
+
+        <!-- Sezione per tutte le sagome -->
+        {% for commessa in commesse %}
+        <div class="row py-4 my-3 tracciamento-split-border">
+            <!-- Colonna per l'immagine e i dettagli della "Sagoma" -->
+            <div class="col-md-6 mb-3">
+                <div class="text-center">
+<!--                    <img alt="image" src="{% static 'assets/img/Sagoma.png' %}" class="w-75 vh-75">-->
+                        {% if commessa.icona %}
+                            <img src="{{ commessa.icona.url }}" class="w-75 vh-75" alt="Immagine Commessa">
+                        {% else %}
+                            <p>Nessuna icona disponibile</p>
+                        {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6 mb-3 ps-5">
+                <h5>Sagoma</h5>
+                <p class="fw-bold">Dettagli</p>
+                <p class="fw-bold">Modello:   {{ commessa.modello }}</p>
+                <p class="fw-bold">Componente: {{ commessa.componente }}</p>
+                <p class="fw-bold">Dima: {{ commessa.dima }}</p>
+                <p class="fw-bold">Plan: {{ codice }}</p>
+                <p class="fw-bold">N.Pezz.: {{ commessa.qtalav }}/{{ commessa.qta }}</p>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="row py-4 my-3 tracciamento-split-border">
+            <!-- Colonna per l'immagine e i dettagli della "Macchina utensile" -->
+            <div class="col-md-6 mb-3">
+                <div class="text-center">
+                    <img alt="image" src="{% static 'assets/img/macchina_utensile.png' %}" class="w-75 vh-75">
+                </div>
+            </div>
+            <div class="col-md-6 mb-3 ps-5">
+                <h5>Macchina utensile</h5>
+                {% if macchine %}
+                    <p class="fw-bold">Dettagli</p>
+                    <p class="fw-bold">Tipo macchina: {{ macchine.0.tipo_macchina }}</p>
+                    <p class="fw-bold">Identificativo macchina: {{ macchine.0.identificativo }}</p>
+                    <p class="fw-bold">Descrizione macchina: {{ macchine.0.descrmacchina }}</p>
+                {% else %}
+                    <p>Informazioni sulla macchina non disponibili.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sezione per il blocco poliuretano -->
+        <div class="row py-4 my-3 tracciamento-split-border">
+            <div class="col-md-6 mb-3">
+                <div class="text-center">
+                    <img alt="image" src="{% static 'assets/img/poliuretano.jpg' %}" class="w-75 vh-75">
+                </div>
+            </div>
+            <div class="col-md-6 mb-3 ps-5">
+                <h5>Blocco poliuretano</h5>
+                {% if commesse.0.ordine %}
+                    {% if commesse.0.ordine.articoli.count > 0 %}
+                        <p class="fw-bold">Dettagli</p>
+                        <!-- Visualizza i dettagli del primo articolo (senza ripetere la sezione) -->
+                        {% with articolo=articoli.0 %}
+                            <p class="fw-bold">Nome Articolo: {{ articolo.codice }}</p>
+                            <p class="fw-bold">Altezza (mm): {{ articolo.altezzamm|floatformat:2 }}</p>
+                            <p class="fw-bold">Larghezza (mm): {{ articolo.larghezzamm|floatformat:2 }}</p>
+                            <p class="fw-bold">Spessore (mm): {{ articolo.spessoremm|floatformat:2 }}</p>
+                            <p class="fw-bold">Peso (kg): {{ articolo.peso }}</p>
+                            <p class="fw-bold">Densità (kg/m³): {{ articolo.densità|floatformat:2 }}</p>
+                        {% endwith %}
+                    {% else %}
+                        <p>Nessun articolo trovato per questo ordine.</p>
+                    {% endif %}
+                {% else %}
+                    <p>Nessun ordine associato a questa commessa.</p>
+                {% endif %}
+            </div>
+        </div>
+
+
+    {% else %}
+        <p>{{ error }}</p>
+    {% endif %}
+</div>
+{% endblock %}

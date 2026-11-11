@@ -1,0 +1,32 @@
+# Python and virtual environments
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*service-account*.json
+*service_account*.json
+# The static image directory must not be used to store Google credentials.
+pia_ics/struttura/static/assets/img/*.json
+
+# Django runtime output
+pia_ics/db.sqlite3
+pia_ics/media/
+pia_ics/staticfiles/
+pia_ics/struttura/static/admin/
+
+# Legacy/generated assets kept only on developer machines
+pia_ics/struttura/static_old/
+
+# IDE and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #333;">
+    <div style="text-align: center;">
+        <div id="reader" style="width: 400px; margin: auto; border: 2px solid yellow;"></div>
+        <h1 style="color: white; margin-top: 20px; font-size: 1.5em;">INQUADRA IL QR CODE DELLA MACCHINA</h1>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+
+function onScanSuccess(decodedText, decodedResult) {
+    const macchinaPk = decodedText.split(' ');
+    const macchinaId = macchinaPk[1];
+
+    $.ajax({
+        url: '/assistenza/crea/',
+        type: 'GET',
+        data: { macchinaId: macchinaId },
+        success: function(response) {
+            const redirectUrl = `/assistenza/crea/?macchinaId=${macchinaId}`;
+            window.location.replace(redirectUrl);
+        },
+        error: function(xhr, status, error) {
+        }
+    });
+}
+
+
+function onScanError(errorMessage) {
+    console.warn(`Errore durante la scansione del QR code: ${errorMessage}`);
+}
+
+    window.addEventListener('load', () => {
+    console.log("Avviando il lettore QR...");
+    const html5QrCode = new Html5Qrcode("reader");
+
+    const config = {
+        fps: 10, // Frame al secondo
+        qrbox: { width: 550, height: 550 }
+    };
+
+    html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        onScanSuccess,
+        onScanError
+    ).catch(err => {
+        console.error(`Errore nell'avvio del lettore QR: ${err}`);
+    });
+});
+</script>
+
+{% endblock %}

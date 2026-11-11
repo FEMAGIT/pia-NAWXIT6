@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="width:500px;">
+    {% if commesse %}
+        <h1>Dettagli QR Code</h1><br>
+
+        {% for commessa in commesse %}
+
+            <div class="card mb-3" style="width:300px; margin:auto;">
+                <div class="card-body">
+                    <h2 class="card-title">Dettagli commessa:</h2>
+                    <p><strong>Cliente: </strong>{{ commessa.cliente }}</p>
+                    <p><strong>Modello: </strong>{{ commessa.modello }}</p>
+                    <p><strong>Componente: </strong>{{ commessa.componente }}</p>
+                    <p><strong>Dima: </strong>{{ commessa.dima }}</p>
+                    <p><strong>Plan: </strong>{{ codice }}</p>
+                    <p><strong>N.Pezz.: </strong>{{ commessa.qtalav }}/{{ commessa.qta }}</p>
+                </div>
+            </div>
+
+
+            <div class="progress" style="height: 100px; margin:auto; width: 5px;">
+                <div class="progress-bar bg-secondary" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div><br>
+
+
+
+            <div class="card mb-3" style="width:300px; margin:auto;">
+                <div class="card-body">
+                    <h2 class="card-title">Dettagli macchina:</h2>
+                    {% for macchina in macchine %}
+                        <p><strong>Tipo macchina:</strong> {{ macchina.tipo_macchina }}</p>
+                        <p><strong>Identificativo macchina:</strong> {{ macchina.identificativo }}</p>
+                        <p><strong>Descrizione macchina:</strong> {{ macchina.descrmacchina }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+
+            <div class="progress" style="height: 100px; margin:auto; width: 5px;">
+                <div class="progress-bar bg-secondary" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div><br>
+
+
+            <div class="card mb-3" style="width:300px; margin:auto;">
+                <div class="card-body">
+                    <h2 class="card-title">Blocco:</h2>
+                    {% if commessa.ordine %}
+                        {% if commessa.ordine.articoli.count > 0 %}
+                            {% for articolo in articoli %}
+                                <p><strong>Nome Articolo:</strong> {{ articolo.codice }}</p>
+                                <p><strong>Altezza:</strong> {{ articolo.altezzamm|floatformat:2 }}</p>
+                                <p><strong>Larghezza:</strong> {{ articolo.larghezzamm|floatformat:2 }}</p>
+                                <p><strong>Spessore:</strong> {{ articolo.spessoremm|floatformat:2 }}</p>
+                                <p><strong>Peso:</strong> {{ articolo.peso }}</p>
+                                <p><strong>Densità:</strong> {{ articolo.densità|floatformat:2 }}</p>
+                            {% endfor %}
+                        {% else %}
+                            <p>Nessun articolo trovato per questo ordine.</p>
+                        {% endif %}
+                    {% else %}
+                        <p>Nessun ordine associato a questa commessa.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>{{ error }}</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1>Gestione macchine</h1>
+
+        <div class="card bg-white">
+            <div class="card-header justify-content-between">
+                <h4 class="clr-bolle">Lista macchine</h4>
+                {% if user.is_superuser %}
+                <a href="{% url 'struttura:macchina_crea' %}">
+                    <button class="btn btn-dark"><i class="fas fa-plus mr-2"></i> Aggiungi una nuova macchina</button>
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="card-body">
+                <div class="row m-2 pt-2">
+                    <div class="table-responsive">
+                        <table id="macchina-table"
+                               class="table table-sm table-bordered dataTables_wrapper dt-bootstrap4 no-footer"
+                               style="width: 100% !important;">
+                            <thead>
+                            <tr>
+                                <th class="fw-bold">ID</th>
+                                <th class="fw-bold">Tipo</th>
+                                <th class="fw-bold">Descrizione</th>
+                                <th class="fw-bold">Cliente</th>
+                                <th class="fw-bold">Azioni</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#macchine_dropdown').addClass('active');
+        $('#macchine_toggle').addClass('toggled');
+        $('#macchina-list').addClass('active');
+
+
+        $('#macchina-table').dataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                "url": "{% url 'struttura:macchina_datatables' %}",
+                "type": 'GET',
+                "data": {'role': 'MACCHINA' }
+            },
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.10.20/i18n/Italian.json"
+            },
+            "columnDefs": [
+                    {"width": "8%", "targets": 0},
+                    {"width": "18%", "targets": 1},
+                    {"width": "35%", "targets": 2},
+                    {"width": "17%", "targets": 3},
+                    { "width": "22%", "targets": 4, "orderable": false }
+                ],
+            "createdRow": function(row, data, dataIndex) {
+                $(row).css('min-height', '40px');
+            },
+            "order": [],
+        });
+    });
+
+    function DeleteMacchina(pk) {
+        Swal.fire({
+            title: "Sei sicuro?",
+            text: "Una volta eliminata non sarà più possibile accedere all'informazione!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Conferma',
+            cancelButtonText: 'Annulla',
+        }).then((willDelete) => {
+            if (willDelete.value) {
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        'pk': pk,
+                        'method': 'del',
+                    },
+                    url: '{% url "struttura:macchina_elimina" 0 %}'.replace('0', pk),
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    success: function (response) {
+                        Swal.fire("Fatto!", response.response, "success")
+                            .then(() => {
+                                location.reload();
+                            });
+                    },
+                    error: () => {
+                        Swal.fire("Attenzione!", "Si è verificato un errore durante l'eliminazione.", "error");
+                    }
+                });
+            } else if (willDelete.dismiss === Swal.DismissReason.cancel) {
+                Swal.fire(
+                    'Annullato',
+                    'Rimozione annullata.',
+                    'error'
+                );
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form method="post" enctype="multipart/form-data" action="{% url 'struttura:detect_text_view' assistenza_id=assistenza.id %}" id="photoForm">
+    {% csrf_token %}
+
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #333;">
+        <div style="text-align: center;">
+            <video id="video" style="width: 300px; margin: auto; border: 2px solid yellow;" autoplay playsinline muted></video><br>
+            <select id="cameraSelect" class="form-select form-select-sm my-2" style="display: none; width: auto; margin: auto;"></select><br>
+            <button class="btn btn-dark" type="button" id="snapButton">Scatta una Foto</button>
+            <button class="btn btn-outline-light ms-2" type="button" id="uploadButton">Carica una foto</button>
+            <p id="cameraStatus" style="display: none; color: #ffc107; max-width: 420px; margin: 12px auto 0;"></p>
+            <div id="previewContainer" style="margin-top: 20px; display: none;">
+                <p style="color: white;">Anteprima:</p>
+                <img id="previewImage" style="border: 2px solid white; width: 300px;" alt="Anteprima immagine">
+            </div>
+        </div>
+    </div>
+
+    <canvas id="canvas" style="display: none;"></canvas>
+    <input type="file" id="imageInput" name="image" accept="image/*" style="display: none;" required>
+</form>
+
+<script>
+    var video = document.getElementById('video');
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    var imageInput = document.getElementById('imageInput');
+    var form = document.getElementById('photoForm');
+    var previewContainer = document.getElementById('previewContainer');
+    var previewImage = document.getElementById('previewImage');
+
+    // TEMPORANEO: fotocamera interna (webcam del PC) attiva per i test.
+    // Per tornare alla fotocamera esterna/posteriore: commentare questo blocco e decommentare quello sotto.
+    //fotocamera interna per test
+    function mostraStatoCamera(messaggio) {
+        var el = document.getElementById('cameraStatus');
+        el.textContent = messaggio;
+        el.style.display = messaggio ? 'block' : 'none';
+    }
+
+    var cameraSelect = document.getElementById('cameraSelect');
+
+    function avviaStream(deviceId) {
+        if (video.srcObject) { video.srcObject.getTracks().forEach(function (t) { t.stop(); }); }
+        var vincoli = deviceId ? { video: { deviceId: { exact: deviceId } } } : { video: true };
+        return navigator.mediaDevices.getUserMedia(vincoli).then(function (stream) {
+            video.srcObject = stream;
+            mostraStatoCamera('');
+            return stream;
+        });
+    }
+
+    // Popola il menu delle fotocamere ed evita le webcam a infrarossi (Windows Hello), che non danno un'immagine utilizzabile
+    function scegliFotocamera(stream) {
+        return navigator.mediaDevices.enumerateDevices().then(function (devices) {
+            var camere = devices.filter(function (d) { return d.kind === 'videoinput'; });
+            var attuale = stream.getVideoTracks()[0].getSettings().deviceId;
+            cameraSelect.innerHTML = '';
+            camere.forEach(function (d, i) {
+                var opt = document.createElement('option');
+                opt.value = d.deviceId;
+                opt.textContent = d.label || ('Fotocamera ' + (i + 1));
+                cameraSelect.appendChild(opt);
+            });
+            cameraSelect.style.display = camere.length > 1 ? 'inline-block' : 'none';
+            cameraSelect.value = attuale;
+
+            var corrente = camere.find(function (d) { return d.deviceId === attuale; });
+            var isIR = function (d) { return /\bIR\b|infrared|infrarossi/i.test(d.label); };
+            var normale = camere.find(function (d) { return !isIR(d); });
+            if (corrente && isIR(corrente) && normale) {
+                cameraSelect.value = normale.deviceId;
+                return avviaStream(normale.deviceId);
+            }
+        });
+    }
+
+    function startCamera() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            mostraStatoCamera('Il browser non consente l\'accesso alla fotocamera da questa pagina (serve HTTPS o localhost). Usa "Carica una foto".');
+            return;
+        }
+        avviaStream(null)
+            .then(scegliFotocamera)
+            .catch(function(error) {
+                console.log('Errore nell\'accesso alla fotocamera:', error);
+                var motivi = {
+                    NotAllowedError: 'permesso negato: consenti l\'uso della fotocamera dall\'icona nella barra degli indirizzi e ricarica la pagina',
+                    NotFoundError: 'nessuna fotocamera trovata su questo dispositivo',
+                    NotReadableError: 'la fotocamera è già in uso da un\'altra applicazione (Teams, Zoom, app Fotocamera...) oppure è disattivata',
+                    OverconstrainedError: 'la fotocamera non supporta le impostazioni richieste',
+                    SecurityError: 'accesso bloccato dalle impostazioni di sicurezza del browser'
+                };
+                mostraStatoCamera('Fotocamera non disponibile: ' + (motivi[error.name] || (error.name + ' - ' + error.message)) + '. In alternativa usa "Carica una foto".');
+            });
+    }
+
+/*
+      function startCamera() {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { exact: "environment" } }
+            })
+            .then(function(stream) {
+                video.srcObject = stream;
+            })
+            .catch(function(error) {
+                console.log('Errore nell\'accesso alla fotocamera:', error);
+                alert('Impossibile accedere alla fotocamera posteriore. Verifica i permessi e le impostazioni.');
+            });
+        }
+    }
+*/
+
+
+
+    function takeSnapshot() {
+        if (video.videoWidth === 0 || video.videoHeight === 0) {
+            alert("Errore: la fotocamera non sta trasmettendo correttamente. Riprova.");
+            return;
+        }
+
+        // Scatta la foto
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Converti la foto in un file
+        var dataUrl = canvas.toDataURL('image/png');
+        var dataBlob = dataURLToBlob(dataUrl);
+        var file = new File([dataBlob], "scatto_foto.png", { type: 'image/png' });
+        var dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        imageInput.files = dataTransfer.files;
+
+
+        // Invia il form automaticamente
+        form.submit();
+    }
+
+    function dataURLToBlob(dataUrl) {
+        var byteString = atob(dataUrl.split(',')[1]);
+        var ab = new ArrayBuffer(byteString.length);
+        var ia = new Uint8Array(ab);
+        for (var i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        return new Blob([ab], { type: 'image/png' });
+    }
+
+    document.getElementById('snapButton').addEventListener('click', takeSnapshot);
+
+    cameraSelect.addEventListener('change', function () {
+        avviaStream(cameraSelect.value).catch(function (error) {
+            mostraStatoCamera('Impossibile usare questa fotocamera: ' + error.name + '. Scegline un\'altra.');
+        });
+    });
+
+    // Alternativa alla fotocamera: carica un'immagine dal dispositivo e invia subito il form
+    document.getElementById('uploadButton').addEventListener('click', function () { imageInput.click(); });
+    imageInput.addEventListener('change', function () {
+        if (imageInput.files.length) { form.submit(); }
+    });
+
+    startCamera();
+</script>
+
+{% endblock %}

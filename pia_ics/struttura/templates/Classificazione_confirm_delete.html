@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Conferma Eliminazione{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Sei sicuro di voler eliminare {{ object }}?</h1>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Elimina</button>
+        <a href="{% url 'struttura:Assistenza_homepage' %}" class="btn btn-secondary">Annulla</a>
+    </form>
+</div>
+{% endblock %}

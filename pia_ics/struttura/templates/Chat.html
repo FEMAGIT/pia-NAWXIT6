@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 larghezza-form-custom">
+            <div class="card card-custom-chat">
+                <div class="chat">
+                    <div class="chat-header clearfix">
+                        <div class="chat-about">
+                            <div class="chat-with"><span class="fw-bold fs-4">{{ request.user.username }}</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-box" id="mychatbox">
+                    <div class="card-body chat-content" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;" tabindex="2">
+                        {% for messaggio in assistenza.assistenze.all %}
+                        <div class="chat-item d-flex {% if messaggio.utentecorrente == request.user.username %}text-end justify-content-end{% else %}text-start justify-content-start{% endif %}">
+                            {% if messaggio.utentecorrente != request.user.username %}
+                            <div class="rounded-circle d-flex justify-content-center align-items-center chat-avatar-dimensions bg-dark text-white">
+                                <span class="fw-bold fs-6">C</span>
+                            </div>
+                            {% endif %}
+                            <div class="chat-details ms-2 pe-2">
+                                <div class="chat-text fs-6 {% if messaggio.utentecorrente == request.user.username %}bg-danger text-white rounded-end{% else %}text-black rounded-start{% endif %}">
+                                    {{ messaggio.messaggio }}
+                                    {% if messaggio.preventivo %}
+                                        {% if messaggio.is_staff == True %}
+                                            <p class="{% if messaggio.utentecorrente == request.user.username %}bg-danger text-white rounded-end{% else %}text-black rounded-start{% endif %}">
+                                                <strong>Scarica l'allegato. Se confermi il preventivo, invialo controfirmato, altrimenti clicca su no.</strong>
+                                                <a href="{{ messaggio.preventivo.url }}" target="_blank">Scarica qui.</a>
+                                            </p>
+                                            <p class="{% if messaggio.utentecorrente == request.user.username %}bg-danger text-white rounded-end{% else %}text-black rounded-start{% endif %}">
+                                                Confermi il preventivo?</p>
+<!--                                            <a href="{% url 'struttura:conferma_preventivo' assistenza.pk 'si' %}"-->
+<!--                                               target="_self">Si</a><br>-->
+                                            <a href="{% url 'struttura:conferma_preventivo' assistenza.pk 'no' %}"
+                                               target="_self">No</a><br>
+                                        {% else %}
+                                            <p class="{% if messaggio.utentecorrente == request.user.username %}bg-danger text-white rounded-end{% else %}text-black rounded-start{% endif %}">
+                                                <strong>Allego il preventivo controfirmato.</strong>
+                                                <a href="{{ messaggio.preventivo.url }}" target="_blank">Scarica qui.</a>
+                                            </p>
+                                            {% if request.user.is_staff == True %}
+                                            <p class="{% if messaggio.utentecorrente == request.user.username %}bg-danger text-white rounded-end{% else %}text-black rounded-start{% endif %}">
+                                                Confermi il preventivo?</p>
+                                            <a href="{% url 'struttura:conferma_preventivo' assistenza.pk 'si' %}"
+                                               target="_self">Si</a><br>
+                                            <a href="{% url 'struttura:conferma_preventivo' assistenza.pk 'no' %}"
+                                               target="_self">No</a><br>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    {{ messaggio.datacorrente|date:"d M H:i" }}
+                                </small>
+                            </div>
+                            {% if messaggio.utentecorrente == request.user.username %}
+                            <div class="rounded-circle text-white d-flex justify-content-center align-items-center chat-avatar-dimensions">
+                                <span class="fw-bold fs-6">A</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <hr>
+                    <div class="card-footer chat-form bg-color-grrey-custom">
+                        <form method="post" action="{% url 'struttura:chat_add_message' assistenza.id %} "
+                              id="chat-form" class="d-flex align-items-center" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="col-8 align-items-center">
+                                <textarea class="form-control chat-text-area w-100" name="messaggio"
+                                          placeholder="Rispondi..." required></textarea>
+                            </div>
+                            <div class="col-2 align-items-center">
+                                <input type="file" name="allegato" id="allegato" class="d-none">
+                                <label for="allegato"
+                                       class="btn btn-danger text-white rounded-0 w-auto ms-1 px-4 d-flex justify-content-center align-items-center">
+                                    <i class="fas fa-upload "></i>Scegli file
+                                </label>
+                            </div>
+                            <div id="user-info" data-is-staff="{{ messaggio.is_staff }}"></div>
+
+                            <div class="col-2 d-flex">
+                                <button type="submit"
+                                        class="btn btn-danger text-white rounded-0 px-5 d-flex justify-content-center align-items-center"
+                                        onclick="inviamessaggio(event)">
+                                    <i class="far fa-paper-plane fs-5 text-end"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function scrollToBottom() {
+        var chatBox = document.querySelector('.chat-content');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    window.onload = scrollToBottom;
+
+    document.getElementById("chat-form").addEventListener("submit", function () {
+        setTimeout(scrollToBottom, 100);
+    });
+
+
+    function inviamessaggio(event) {
+        var userInfo = document.getElementById('user-info');
+        var isStaff = userInfo.getAttribute('data-is-staff') === "True";
+        var messaggio = document.querySelector('textarea[name="messaggio"]').value;
+        var allegato = document.querySelector('#allegato').files.length;
+
+
+        if (allegato > 0 && messaggio.trim() === '') {
+            document.querySelector('textarea[name="messaggio"]').value =
+            ` `;
+        }
+
+        if (messaggio.trim() === '' && allegato === 0) {
+            event.preventDefault(); // Blocca il submit
+            alert('Per favore, scrivi un messaggio o allega un file.');
+        }
+    }
+
+
+    document.querySelector('textarea[name="messaggio"]').addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            document.getElementById("chat-form").dispatchEvent(new Event('submit'));
+        }
+    });
+</script>
+
+{% endblock %}

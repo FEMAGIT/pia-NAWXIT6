@@ -1,0 +1,129 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+    <title>{% block title %}ICS{% endblock %}</title>
+
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/cropped-LOGO.png' %}">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/js/all.min.js"
+            crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+            crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.0/css/dataTables.bootstrap5.min.css"/>
+    <link rel="stylesheet" href="{% static 'assets/css/app.min.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+            integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+            integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+            crossorigin="anonymous"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+    </style>
+</head>
+<body class="bg-white">
+
+<div class="container-fluid bg-white">
+    <div class="row full-height">
+        <!-- Colonna immagine a sinistra -->
+        <div class="col-12 col-lg-6 p-0">
+            <img src="{% static 'assets/img/img-login.png' %}" alt="Background Image" class="img-cover-custom">
+        </div>
+
+        <!-- Colonna destra con logo, titolo e form di login -->
+        <div class="col-12 col-lg-6 d-flex align-items-center">
+            <div class="text-start w-75 ms-4">
+                <img src="{% static 'assets/img/logo_aggiornato.png' %}" alt="Logo Azienda"
+                     class="img-fluid mb-4 logo-login-max-width">
+                <h5 class="mb-1 mt-2 ms-2 text-secondary">Benvenuto nella piattaforma di</h5>
+                <h2 class="mb-5 fs-4 ms-2">FEMA INDUSTRY</h2>
+
+                <hr>
+
+                <!-- Form di login personalizzato -->
+                <form method="post" class="w-100  ms-2">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">E-mail</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="alert alert-danger">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                                {{ form.password }}
+                                {% if form.password.errors %}
+                                <div class="alert alert-danger">{{ form.password.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" name="remember" class="custom-control-input" tabindex="3"
+                               id="remember-me">
+                        <label class="custom-control-label text-dark fw-bold mb-2" for="remember-me">Ricordami</label>
+                    </div>
+                    <hr>
+                    <div class="col-12 text-end mb-5">
+                        <button type="submit" class="btn btn-danger">Accedi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    {% for message in messages %}
+        {% if 'info' in message.tags %}
+            toastr.success('{{ message|safe }}', '..:: INFO ::..');
+        {% elif 'error' in message.tags %}
+            toastr.error('{{ message|safe }}', '..:: ATTENZIONE ::..');
+        {% endif %}
+    {% endfor %}
+</script>
+
+<!-- General JS Scripts -->
+<script src="{% static 'assets/js/app.min.js' %}"></script>
+<script src="{% static 'assets/bundles/apexcharts/apexcharts.min.js' %}"></script>
+<script src="{% static 'assets/js/page/index.js' %}"></script>
+<script src="{% static 'assets/js/scripts.js' %}"></script>
+<script src="{% static 'assets/js/custom.js' %}"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'assets/js/notifications/Lobibox.js' %}"></script>
+</body>
+</html>

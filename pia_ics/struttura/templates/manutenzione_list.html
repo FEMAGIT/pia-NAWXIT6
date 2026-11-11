@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Manutenzioni per Macchina{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1>Manutenzioni per Macchina</h1>
+
+        <div class="card bg-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="table-responsive">
+                        <table id="manutenzione-table"
+                               class="table table-sm table-bordered dataTables_wrapper dt-bootstrap4 no-footer"
+                               style="width: 100% !important;">
+                            <thead>
+                            <tr>
+                                <th>Componente</th>
+                                <th>Descrizione Componente</th>
+                                <th>Link</th>
+                                <th>Azioni</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var tipo_macchina_id = '{{ tipo_macchina_id }}';
+        $('#manutenzione-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "{% url 'struttura:manutenzione_datatables' %}",
+                type: 'GET',
+                data: {
+                    tipo_macchina_id: tipo_macchina_id
+                }
+            },
+            columns: [
+                { data: 'componente' },
+                { data: 'descrizionecomponente' },
+                { data: 'link' },
+                { data: 'azioni' }
+            ],
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.10.20/i18n/Italian.json"
+            },
+            columnDefs: [
+                {"width": "25%", "targets": 0},
+                {"width": "30%", "targets": 1},
+                {"width": "25%", "targets": 2},
+                {"width": "20%", "targets": 3, "orderable": false},
+            ],
+            "order": []
+        });
+    });
+</script>
+
+{% endblock %}

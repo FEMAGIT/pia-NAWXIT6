@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifica assistenza{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header text-center pb-1">
+        <h2>MODIFICA ASSISTENZA</h2>
+    </div>
+    <div class="card-body">
+      <form method="post">
+          {% csrf_token %}
+          <div class="row justify-content-center">
+              <div class="col-lg-10">
+                  <div class="form-group row align-items-center">
+                      <label class="col-sm-2 col-form-label text-center">
+                          {{ form.titolo.label }}
+                      </label>
+                      <div class="col-sm-3">
+                          <div class="width-custom-desc">
+                              {{ form.titolo }}
+                          </div>
+                          {% if form.titolo.errors %}
+                              <div class="text-danger">{{ form.titolo.errors }}</div>
+                          {% endif %}
+                      </div>
+                  </div>
+
+                  <hr>
+
+                  <div class="form-group row mb-4 align-items-center">
+                      <label class="col-sm-2 col-form-label text-center">
+                          {{ form.data.label }}
+                      </label>
+                      <div class="col-sm-4">
+                          {{ form.data }}
+                          {% if form.data.errors %}
+                              <div class="text-danger">{{ form.data.errors }}</div>
+                          {% endif %}
+                          <div class="pt-2">
+                              {{ form.ora_inizio }}
+                          </div>
+                          {% if form.ora_inizio.errors %}
+                              <div class="text-danger">{{ form.ora_inizio.errors }}</div>
+                          {% endif %}
+                      </div>
+
+                       <label class="col-sm-2 col-form-label text-center">
+                          {{ form.macchine.label }}
+                      </label>
+                      <div class="col-sm-4">
+                          {{ form.macchine }}
+                          {% if form.macchine.errors %}
+                              <div class="text-danger">{{ form.macchine.errors }}</div>
+                          {% endif %}
+                      </div>
+                  </div>
+
+                  <hr>
+
+                  <div class="form-group row  mb-3">
+                      <label class="col-sm-2 col-form-label text-center">
+                          {{ form.descassistenza.label }}
+                      </label>
+                      <div class="col-sm-10">
+                          {{ form.descassistenza }}
+                          {% if form.descassistenza.errors %}
+                              <div class="text-danger">{{ form.descassistenza.errors }}</div>
+                          {% endif %}
+                      </div>
+                  </div>
+
+
+
+                  <div class="form-group row mt-4 justify-content-center">
+                      <div class="col-12 text-center">
+                          <button type="submit" class="btn btn-create-custom fw-bold">Salva</button>
+                      </div>
+                  </div>
+
+              </div>
+          </div>
+      </form>
+
+
+    </div>
+</div>
+
+<script>
+    function setToday() {
+        const today = new Date();
+        const date = today.toISOString().split('T')[0];
+        document.getElementById("{{ form.data.id_for_label }}").value = date;
+    }
+</script>
+
+{% endblock %}
