@@ -1,0 +1,13 @@
+[
+  {
+    "urls": "stun:turn.example.com:3478"
+  },
+  {
+    "urls": "turn:turn.example.com:3478",
+    "username": "CAMBIAMI",
+    "credential": "CAMBIAMI"
+  },
+  {
+    "urls": "stun:stun.l.google.com:19302"
+  }
+]

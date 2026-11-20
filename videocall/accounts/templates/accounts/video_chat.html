@@ -1,0 +1,129 @@
+{% extends base %} {% load static %} {% load render_table from django_tables2 %}
+{% block stylesheet_body %}
+
+<link rel="stylesheet" href="{% static 'css/video_chat.css' %}" />
+<style>
+  .app-header-dark {
+    background-color: #363641;
+  }
+  .table thead th {
+    color: #f6f7f9;
+    background-color: #CB2B2C;
+    border-color: #CB2B2C;
+  }
+</style>
+
+{% endblock %} {% block content_body %}
+<button
+  id="buttorQRCodeGenerate"
+  class="btn btn-primary btn-xl pull-right"
+  style="background-color: #CB2B2C; border-radius: 0.25rem"
+  type="button"
+  title="Genera QR CODE"
+  onclick="generateQRCode()"
+>
+  Genera QR CODE <i class="fas fa-qrcode"></i>
+</button>
+
+<div id="callPage" class="call-page" style="display: none">
+  <div id="videos">
+    <div class="timer">
+      <div></div>
+      <span aria-label="timer">00:00</span>
+    </div>
+
+    <video id="remoteVideo" autoplay autopictureinpicture></video>
+
+    <div id="tools" class="controls">
+      <div id="hangUpBtn" class="btn-tools disconnect" title="hook"></div>
+
+      <div
+        id="fullscreen"
+        class="btn-tools fullscreen maximise"
+        title="fullscreen"
+      ></div>
+      <div
+        id="screenshot"
+        class="btn-tools screenshot"
+        title="screenshot"
+      ></div>
+
+      <div id="mic" class="btn-tools mic unmute" title="mic"></div>
+      <div id="cam" class="btn-tools cam disable_video" title="cam"></div>
+
+      <div id="audio" class="btn-tools audio disable_sound" title="audio"></div>
+      <div
+        id="picture-in-picture"
+        class="btn-tools picture-in-picture picture_in_picture"
+        title="Picture-in-Picture"
+      ></div>
+
+      <audio autoplay controls></audio>
+    </div>
+    <div id="canvasDiv" class="resizable">
+      <canvas id="canvas"></canvas>
+      <div id="header-canvas"></div>
+      <div id="send-canvas"></div>
+      <div id="close-canvas"></div>
+      <div id="erase-canvas"></div>
+      <div class="resizers">
+        <div id="resizer-top-left" class="resizer top-left"></div>
+        <div id="resizer-top-right" class="resizer top-right"></div>
+        <div id="resizer-bottom-left" class="resizer bottom-left"></div>
+        <div id="resizer-bottom-right" class="resizer bottom-right"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="textchat">
+    <div id="history">
+      <div class="title_history">CHAT: <span id="chat_title"></span></div>
+    </div>
+
+    <div class="form-chat">
+      <div class="col-12" id="left">
+        <input type="text" placeholder="Messaggio" id="msgTxt" />
+      </div>
+      <div class="col-2" id="send"></div>
+      <div class="col-2" id="right"></div>
+    </div>
+  </div>
+</div>
+
+<div
+  id="smartglassList"
+  class="container mt-5 panel-collapse collapse show smartglassList"
+>
+  {% render_table table %}
+
+  <div class="hidden">
+    <audio controls id="called_sound" loop>
+      <source src="{% static 'sound/called_sound.wav' %}" type="audio/wav" />
+    </audio>
+
+    <audio controls id="calling_sound" loop>
+      <source src="{% static 'sound/calling_sound.wav' %}" type="audio/wav" />
+    </audio>
+  </div>
+</div>
+
+{% endblock %} {% block javascript_body %}
+<script>
+  var token_temp = "{{ token }}";
+  var gumStream; //stream from getUserMedia()
+  var rec; //Recorder.js object
+  var input;
+</script>
+<script src="{% static 'js/video_chat/app.js' %}"></script>
+<script src="{% static 'js/video_chat/recorder.js' %}"></script>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="{% static 'js/video_chat/element_bind.js' %}"></script>
+<script src="{% static 'js/video_chat/session_data.js' %}"></script>
+<script src="{% static 'js/video_chat/screenshot/canvas_manager.js' %}"></script>
+<script src="{% static 'js/video_chat/video_controls.js' %}"></script>
+<script src="{% static 'js/video_chat/contacts_list_handler.js' %}"></script>
+<script src="{% static 'js/video_chat/system_ws.js' %}?v=20261120"></script>
+<script src="{% static 'js/video_chat/webrtc_ws.js' %}?v=20261120"></script>
+<script src="{% static 'js/video_chat/chat.js' %}"></script>
+
+{% endblock %}

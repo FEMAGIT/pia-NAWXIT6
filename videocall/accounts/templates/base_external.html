@@ -1,0 +1,28 @@
+{% extends "base_generic1.html" %}
+{% load static %}
+{% load render_table from django_tables2 %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='slim' %}
+{% bootstrap_messages %}
+
+{% block stylesheet %}
+   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+{% block stylesheet_body %}{% endblock %}
+{% endblock %}
+{% block content %}
+
+
+
+          {% block content_body %}
+          {% endblock %}
+
+
+
+{% endblock %}
+
+  {% block javascript %}
+    {% block javascript_body %}
+    {% endblock %}
+
+  {% endblock %}

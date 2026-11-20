@@ -1,0 +1,27 @@
+# Segreti e configurazione locale
+.env
+ice_servers.json
+accounts/ice_servers.json
+migatte_no_gokui.txt
+
+# Ambiente Python
+venv/
+__pycache__/
+*.pyc
+
+# Log e file di runtime
+*.log
+*.log.*
+nohup.out
+*.sock
+*.sock.lock
+
+# File caricati dagli utenti
+media/upload/*
+!media/upload/.gitkeep
+
+# Residui
+*.old
+*.bak
+*.save
+.DS_Store

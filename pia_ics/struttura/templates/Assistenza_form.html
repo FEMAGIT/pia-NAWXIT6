@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuova assistenza{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>NUOVA ASSISTENZA</h2>
+    </div>
+    <div class="card-body">
+        <form method="post" id="assistenzaForm">
+            {% csrf_token %}
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+
+                    <!-- Prima riga: Campo macchine e Campo titolo -->
+                    <div class="form-group row align-items-center pt-2 pb-2 ">
+                        <label class="col-sm-2 col-form-label text-left text-sm-right">
+                            {{ form.macchine.label }}
+                        </label>
+                        <div class="col-sm-5 d-flex p-0">
+                            {{ form.macchine }}
+                            <!-- Pulsante scan -->
+                            <div class="d-flex ms-2">
+                                {% if form.macchine.errors %}
+                                    <div class="text-danger">{{ form.macchine.errors }}</div>
+                                {% endif %}
+                                {% if not object %}
+                                    <a class="btn btn-white text-muted fs-6 " href="{% url 'struttura:QRcodemacchina' %}">Scan</a>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Campo titolo -->
+                        <label class="col-sm-1 col-form-label text-left text-sm-right">
+                            {{ form.titolo.label }}
+                        </label>
+                        <div class="col-sm-3 p-0">
+                            {{ form.titolo }}
+                            {% if form.titolo.errors %}
+                                <div class="text-danger">{{ form.titolo.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Seconda riga: Campo descrizione assistenza e data -->
+                    <div class="form-group row mb-3 py-2">
+                        <label class="col-sm-2 col-form-label text-left text-sm-right">
+                            {{ form.descassistenza.label }}
+                        </label>
+                        <div class="col-sm-5 p-0">
+                            {{ form.descassistenza }}
+                            {% if form.descassistenza.errors %}
+                                <div class="text-danger">{{ form.descassistenza.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <label class="col-sm-1 col-form-label text-left text-sm-right">
+                            {{ form.data.label }}
+                        </label>
+                        <div class="col-sm-3 p-0">
+                            {{ form.data }}
+                            {% if form.data.errors %}
+                                <div class="text-danger">{{ form.data.errors }}</div>
+                            {% endif %}
+                            <label for="{{ form.ora_inizio.id_for_label }}" class="col-form-label pt-3">{{ form.ora_inizio.label }}</label>
+                            {{ form.ora_inizio }}
+                            {% if form.ora_inizio.errors %}
+                                <div class="text-danger">{{ form.ora_inizio.errors }}</div>
+                            {% endif %}
+                            {% if form.non_field_errors %}
+                                <div class="text-danger">{{ form.non_field_errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Pulsante di submit -->
+                    <div class="form-group row mb-0 justify-content-center py-3">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-danger text-white">Salva</button>
+                        </div>
+                    </div>
+
+                    <!-- Calendario -->
+                    <div class="container pt-4 mt-3" id="calendar">
+                        <div class="text-center pb-3">
+                            <h3>Disponibilità</h3>
+                            <p class="text-muted mb-2">Clicca su una fascia libera per prenotarla</p>
+                            <div class="slot-legenda small text-muted">
+                                <span class="voce"><span class="colore" style="background:#e8f5ee;border:2px solid #198754"></span>Libero</span>
+                                <span class="voce"><span class="colore" style="background:#6c757d"></span>Occupato</span>
+                                <span class="voce"><span class="colore" style="background:#cc1813"></span>Selezionato</span>
+                            </div>
+                        </div>
+                        <div id="calendar-content" class="pt-4"></div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const macchinaField = document.querySelector('[name="macchine"]');
+        const titoloField = document.getElementById('id_titolo');
+        const descassistenzaField = document.getElementById('{{ form.descassistenza.id_for_label }}');
+        const dataField = document.querySelector('[name="data"]');
+
+
+        function toggleFields() {
+
+            if (macchinaField.value) {
+                titoloField.removeAttribute('readonly');
+                descassistenzaField.removeAttribute('readonly');
+            } else {
+                titoloField.setAttribute('readonly', 'true');
+                descassistenzaField.setAttribute('readonly', 'true');
+                dataField.setAttribute('readonly', 'true');
+
+                titoloField.value = '';
+                descassistenzaField.value = '';
+                dataField.value = '';
+            }
+        }
+
+        toggleFields();
+        macchinaField.addEventListener('change', toggleFields);
+    });
+
+        function MostraCampi(macchina) {
+        const macchinaField = document.querySelector('[name="macchine"]');
+        const titoloField = document.getElementById('id_titolo');
+        const descassistenzaField = document.getElementById('{{ form.descassistenza.id_for_label }}');
+        const dataField = document.querySelector('[name="data"]');
+            if (macchina) {
+                titoloField.removeAttribute('readonly');
+                descassistenzaField.removeAttribute('readonly');
+            } else {
+                titoloField.setAttribute('readonly', 'true');
+                descassistenzaField.setAttribute('readonly', 'true');
+                dataField.setAttribute('readonly', 'true');
+                titoloField.value = '';
+                descassistenzaField.value = '';
+                dataField.value = '';
+            }
+        }
+
+    window.addEventListener('load', () => {
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+        const macchinaId = getQueryParam('macchinaId');
+        if (macchinaId) {
+            const macchinaField = document.getElementById("{{ form.macchine.id_for_label }}");
+            if (macchinaField) {
+                macchinaField.value = macchinaId;
+            }
+            const url = new URL(window.location);
+            url.searchParams.delete('macchinaId');
+            window.history.replaceState({}, '', url);
+            MostraCampi(macchinaField.value);
+        }
+    });
+</script>
+
+
+
+<style>
+    /* custom.css fissa .fc-scrollgrid-sync-inner a 50px e centra il contenuto (pensato per l'intestazione):
+       nel corpo del calendario tagliava le fasce orarie, quindi qui lo si annulla. */
+    #calendar-content .fc-daygrid-body .fc-scrollgrid-sync-inner { height: auto; display: block; }
+    #calendar-content .fc-daygrid-day-top { display: none; }
+    #calendar-content .fc-daygrid-day-events { padding: 8px 6px; margin: 0; }
+    #calendar-content .fc-daygrid-event-harness { margin: 0 0 6px 0; }
+    #calendar-content .fc-daygrid-event-harness:has(.slot-primo-pomeriggio) { margin-top: 14px; }
+    #calendar-content .fc-daygrid-body-natural .fc-daygrid-day-events { margin-bottom: 0; }
+
+    #calendar-content .fc-daygrid-event.slot {
+        display: block; margin: 0; padding: 5px 4px; border-radius: 6px; border-width: 2px;
+        text-align: center; white-space: normal; line-height: 1.2; transition: transform .1s, box-shadow .1s;
+    }
+    #calendar-content .slot .slot-ora { font-size: .8rem; font-weight: 700; }
+    #calendar-content .slot .slot-stato { font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; opacity: .9; }
+    #calendar-content .slot-prenotabile { cursor: pointer; }
+    #calendar-content .slot-prenotabile:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+    #calendar-content .slot-non-prenotabile { cursor: not-allowed; }
+    #calendar-content .slot-passato { opacity: .35; }
+
+    #calendar-content .fc-day-today { background-color: rgba(204, 24, 19, 0.06) !important; color: inherit; }
+    #calendar-content .fc-col-header-cell.fc-day-past .fc-col-header-cell-cushion { opacity: .5; }
+
+    .slot-legenda { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 18px; }
+    .slot-legenda .voce { display: inline-flex; align-items: center; gap: 6px; }
+    .slot-legenda .colore { width: 14px; height: 14px; border-radius: 4px; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var calendarEl = document.getElementById('calendar-content');
+    var dataInput = document.getElementById("{{ form.data.id_for_label }}");
+    var fasciaInput = document.getElementById("{{ form.ora_inizio.id_for_label }}");
+    var COLORI = {
+        libero: { bg: '#e8f5ee', bordo: '#198754', testo: '#146c43' },
+        occupato: { bg: '#6c757d', bordo: '#6c757d', testo: '#ffffff' },
+        selezionato: { bg: '#cc1813', bordo: '#cc1813', testo: '#ffffff' }
+    };
+    var fasce = [];
+    var occupatiPerGiorno = {};
+
+    // Data locale in formato YYYY-MM-DD (toISOString userebbe UTC e sbaglierebbe giorno vicino alla mezzanotte)
+    function toISODate(d) {
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function oraAttuale() {
+        var n = new Date();
+        return String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0');
+    }
+
+    function costruisciFasce(inizio, fine) {
+        var eventi = [];
+        var oggi = toISODate(new Date());
+        var adesso = oraAttuale();
+
+        for (var d = new Date(inizio); d < fine; d.setDate(d.getDate() + 1)) {
+            var giorno = toISODate(d);
+            var occupate = occupatiPerGiorno[giorno] || [];
+
+            fasce.forEach(function (fascia, indice) {
+                var occupata = occupate.indexOf(fascia.inizio) !== -1;
+                var passata = giorno < oggi || (giorno === oggi && fascia.inizio <= adesso);
+                var selezionata = !occupata && dataInput.value === giorno && fasciaInput.value === fascia.inizio;
+                var stato = occupata ? 'occupato' : (selezionata ? 'selezionato' : 'libero');
+                var prenotabile = !occupata && !passata;
+                var primoPomeriggio = indice > 0 && fascia.inizio >= '13:00' && fasce[indice - 1].inizio < '13:00';
+
+                eventi.push({
+                    title: fascia.etichetta,
+                    start: giorno,
+                    allDay: true,
+                    backgroundColor: COLORI[stato].bg,
+                    borderColor: COLORI[stato].bordo,
+                    textColor: COLORI[stato].testo,
+                    classNames: ['slot', prenotabile ? 'slot-prenotabile' : 'slot-non-prenotabile',
+                                 passata ? 'slot-passato' : '', primoPomeriggio ? 'slot-primo-pomeriggio' : ''],
+                    extendedProps: {
+                        ordine: indice, giorno: giorno, fascia: fascia.inizio, prenotabile: prenotabile,
+                        stato: occupata ? 'Occupato' : (selezionata ? 'Selezionato' : (passata ? 'Non disponibile' : 'Libero'))
+                    }
+                });
+            });
+        }
+        return eventi;
+    }
+
+    function avvisa(messaggio) {
+        if (window.toastr) { toastr.warning(messaggio); } else { console.warn(messaggio); }
+    }
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridWeek',
+        // Locale passato come oggetto: il file locales/it.js non è caricato da base.html
+        locale: { code: 'it', week: { dow: 1, doy: 4 } },
+        firstDay: 1,
+        contentHeight: 'auto',
+        eventOrder: 'ordine',
+        dayMaxEvents: false,
+        headerToolbar: { left: 'prev', center: 'title', right: 'next' },
+        buttonText: { prev: 'Settimana precedente', next: 'Settimana successiva' },
+        dayHeaderFormat: { weekday: 'short', day: '2-digit', month: '2-digit' },
+
+        // Le fasce vengono ricalcolate a ogni cambio settimana con i dati aggiornati dal server
+        events: function (info, successCallback, failureCallback) {
+            fetch('{% url "struttura:calendar_view" %}')
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    fasce = data.fasce || [];
+                    occupatiPerGiorno = data.occupati_per_giorno || {};
+                    successCallback(costruisciFasce(info.start, info.end));
+                })
+                .catch(function (error) {
+                    console.error('Errore nel caricamento delle fasce orarie:', error);
+                    failureCallback(error);
+                });
+        },
+
+        eventContent: function (arg) {
+            return { html: '<div class="slot-ora">' + arg.event.title + '</div>' +
+                           '<div class="slot-stato">' + arg.event.extendedProps.stato + '</div>' };
+        },
+
+        eventClick: function (info) {
+            var p = info.event.extendedProps;
+            if (!p.prenotabile) {
+                avvisa(p.stato === 'Occupato' ? 'Questa fascia oraria è già occupata.' : 'Non è possibile prenotare una fascia oraria passata.');
+                return;
+            }
+            dataInput.value = p.giorno;
+            fasciaInput.value = p.fascia;
+            calendar.refetchEvents();
+        }
+    });
+
+    calendar.render();
+
+    // Se data o fascia vengono scelte a mano, il calendario si sposta sulla settimana e aggiorna la selezione
+    dataInput.addEventListener('change', function () {
+        if (dataInput.value) { calendar.gotoDate(dataInput.value); }
+        calendar.refetchEvents();
+    });
+    fasciaInput.addEventListener('change', function () { calendar.refetchEvents(); });
+});
+</script>
+
+{% endblock %}

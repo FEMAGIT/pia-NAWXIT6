@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form method="post" enctype="multipart/form-data" action="{% url 'struttura:detect_text_view' assistenza_id=assistenza.id %}" id="photoForm">
+    {% csrf_token %}
+
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #333;">
+        <div style="text-align: center;">
+            <div id="videoBox" style="width: min(92vw, 720px); margin: auto; overflow: hidden; border: 2px solid yellow; touch-action: none;">
+                <video id="video" style="width: 100%; display: block; transform-origin: center center;" autoplay playsinline muted></video>
+            </div>
+            <div id="zoomBox" style="display: none; width: min(92vw, 720px); margin: 8px auto 0; color: white;">
+                <label for="zoomSlider" class="small">Zoom <span id="zoomValue">1.0×</span></label>
+                <input type="range" id="zoomSlider" class="form-range" min="1" max="4" step="0.1" value="1">
+            </div>
+            <select id="cameraSelect" class="form-select form-select-sm my-2" style="display: none; width: auto; margin: auto;"></select><br>
+            <button class="btn btn-dark" type="button" id="snapButton">Scatta una Foto</button>
+            <button class="btn btn-outline-light ms-2" type="button" id="uploadButton">Carica una foto</button>
+            <p id="cameraStatus" style="display: none; color: #ffc107; max-width: 420px; margin: 12px auto 0;"></p>
+            <div id="previewContainer" style="margin-top: 20px; display: none;">
+                <p style="color: white;">Anteprima:</p>
+                <img id="previewImage" style="border: 2px solid white; width: 300px;" alt="Anteprima immagine">
+            </div>
+        </div>
+    </div>
+
+    <canvas id="canvas" style="display: none;"></canvas>
+    <input type="file" id="imageInput" name="image" accept="image/*" style="display: none;" required>
+</form>
+
+<script>
+    var video = document.getElementById('video');
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    var imageInput = document.getElementById('imageInput');
+    var form = document.getElementById('photoForm');
+    var previewContainer = document.getElementById('previewContainer');
+    var previewImage = document.getElementById('previewImage');
+
+    // Fotocamera esterna: posteriore su telefono/tablet, webcam USB su PC.
+    // Se non c'è, si ripiega sulla fotocamera integrata; il menu permette comunque di cambiarla.
+    function mostraStatoCamera(messaggio) {
+        var el = document.getElementById('cameraStatus');
+        el.textContent = messaggio;
+        el.style.display = messaggio ? 'block' : 'none';
+    }
+
+    var cameraSelect = document.getElementById('cameraSelect');
+
+    function avviaStream(deviceId) {
+        if (video.srcObject) { video.srcObject.getTracks().forEach(function (t) { t.stop(); }); }
+        // Chiede la risoluzione più alta disponibile ("ideal": se non supportata il browser scende)
+        var vincoli = { width: { ideal: 4096 }, height: { ideal: 2160 } };
+        if (deviceId) { vincoli.deviceId = { exact: deviceId }; }
+        else { vincoli.facingMode = { ideal: 'environment' }; }
+        return navigator.mediaDevices.getUserMedia({ video: vincoli }).then(function (stream) {
+            video.srcObject = stream;
+            mostraStatoCamera('');
+            configuraTraccia(stream.getVideoTracks()[0]);
+            return stream;
+        });
+    }
+
+    // Popola il menu delle fotocamere e passa a quella esterna. Scarta le webcam a infrarossi
+    // (Windows Hello), che non danno un'immagine utilizzabile.
+    function scegliFotocamera(stream) {
+        return navigator.mediaDevices.enumerateDevices().then(function (devices) {
+            var camere = devices.filter(function (d) { return d.kind === 'videoinput'; });
+            var impostazioni = stream.getVideoTracks()[0].getSettings();
+            var attuale = impostazioni.deviceId;
+            cameraSelect.innerHTML = '';
+            camere.forEach(function (d, i) {
+                var opt = document.createElement('option');
+                opt.value = d.deviceId;
+                opt.textContent = d.label || ('Fotocamera ' + (i + 1));
+                cameraSelect.appendChild(opt);
+            });
+            cameraSelect.style.display = camere.length > 1 ? 'inline-block' : 'none';
+            cameraSelect.value = attuale;
+
+            // Il browser ha già dato la fotocamera posteriore (telefono/tablet): va bene così
+            if (impostazioni.facingMode === 'environment') { return; }
+
+            var isIR = function (d) { return /\bIR\b|infrared|infrarossi/i.test(d.label); };
+            var isPosteriore = function (d) { return /back|rear|posteriore|environment/i.test(d.label); };
+            var isIntegrata = function (d) {
+                return /integrated|integrata|built-in|facetime|front|anteriore|user/i.test(d.label);
+            };
+            var scelta = camere.find(function (d) { return !isIR(d) && isPosteriore(d); })
+                      || camere.find(function (d) { return !isIR(d) && !isIntegrata(d); })
+                      || camere.find(function (d) { return !isIR(d); });
+
+            if (!scelta) { return; }
+            var avviso = function () {
+                if (isIntegrata(scelta) && !isPosteriore(scelta)) {
+                    mostraStatoCamera('Nessuna fotocamera esterna trovata: in uso la fotocamera integrata.');
+                }
+            };
+            if (scelta.deviceId === attuale) { return avviso(); }
+            cameraSelect.value = scelta.deviceId;
+            return avviaStream(scelta.deviceId).then(avviso);
+        });
+    }
+
+    function startCamera() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            mostraStatoCamera('Il browser non consente l\'accesso alla fotocamera da questa pagina (serve HTTPS o localhost). Usa "Carica una foto".');
+            return;
+        }
+        avviaStream(null)
+            .then(scegliFotocamera)
+            .catch(function(error) {
+                console.log('Errore nell\'accesso alla fotocamera:', error);
+                var motivi = {
+                    NotAllowedError: 'permesso negato: consenti l\'uso della fotocamera dall\'icona nella barra degli indirizzi e ricarica la pagina',
+                    NotFoundError: 'nessuna fotocamera trovata su questo dispositivo',
+                    NotReadableError: 'la fotocamera è già in uso da un\'altra applicazione (Teams, Zoom, app Fotocamera...) oppure è disattivata',
+                    OverconstrainedError: 'la fotocamera non supporta le impostazioni richieste',
+                    SecurityError: 'accesso bloccato dalle impostazioni di sicurezza del browser'
+                };
+                mostraStatoCamera('Fotocamera non disponibile: ' + (motivi[error.name] || (error.name + ' - ' + error.message)) + '. In alternativa usa "Carica una foto".');
+            });
+    }
+
+
+
+
+    // --- Zoom e messa a fuoco ---------------------------------------------------------------
+    // Zoom hardware se la fotocamera lo espone (Chrome su Android, alcune webcam);
+    // altrimenti zoom digitale: l'anteprima viene ingrandita e la foto ritagliata al centro
+    // senza ricampionare, quindi i pixel inviati sono quelli originali del sensore.
+    var zoomSlider = document.getElementById('zoomSlider');
+    var zoomValue = document.getElementById('zoomValue');
+    var traccia = null;
+    var zoomHardware = false;
+    var zoomDigitale = 1;
+    var imageCapture = null;
+
+    function configuraTraccia(track) {
+        traccia = track;
+        zoomHardware = false;
+        zoomDigitale = 1;
+        video.style.transform = '';
+        imageCapture = ('ImageCapture' in window) ? new ImageCapture(track) : null;
+
+        var caps = track.getCapabilities ? track.getCapabilities() : {};
+        if (caps.focusMode && caps.focusMode.indexOf('continuous') !== -1) {
+            track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(function () {});
+        }
+        if (caps.zoom && caps.zoom.max > caps.zoom.min) {
+            zoomHardware = true;
+            zoomSlider.min = caps.zoom.min;
+            zoomSlider.max = caps.zoom.max;
+            zoomSlider.step = caps.zoom.step || 0.1;
+            zoomSlider.value = track.getSettings().zoom || caps.zoom.min;
+        } else {
+            zoomSlider.min = 1;
+            zoomSlider.max = 4;
+            zoomSlider.step = 0.1;
+            zoomSlider.value = 1;
+        }
+        aggiornaEtichettaZoom();
+        document.getElementById('zoomBox').style.display = 'block';
+    }
+
+    function aggiornaEtichettaZoom() {
+        zoomValue.textContent = parseFloat(zoomSlider.value).toFixed(1) + '×' + (zoomHardware ? '' : ' (digitale)');
+    }
+
+    function impostaZoom(valore) {
+        valore = Math.min(parseFloat(zoomSlider.max), Math.max(parseFloat(zoomSlider.min), valore));
+        zoomSlider.value = valore;
+        if (zoomHardware && traccia) {
+            traccia.applyConstraints({ advanced: [{ zoom: valore }] }).catch(function () {});
+        } else {
+            zoomDigitale = valore;
+            video.style.transform = valore > 1 ? 'scale(' + valore + ')' : '';
+        }
+        aggiornaEtichettaZoom();
+    }
+
+    zoomSlider.addEventListener('input', function () { impostaZoom(parseFloat(zoomSlider.value)); });
+
+    // Pizzico con due dita sull'anteprima (telefono/tablet)
+    var videoBox = document.getElementById('videoBox');
+    var distanzaIniziale = null, zoomIniziale = 1;
+    function distanzaDita(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
+    videoBox.addEventListener('touchstart', function (e) {
+        if (e.touches.length === 2) { distanzaIniziale = distanzaDita(e.touches); zoomIniziale = parseFloat(zoomSlider.value); }
+    }, { passive: true });
+    videoBox.addEventListener('touchmove', function (e) {
+        if (e.touches.length === 2 && distanzaIniziale) {
+            e.preventDefault();
+            impostaZoom(zoomIniziale * distanzaDita(e.touches) / distanzaIniziale);
+        }
+    }, { passive: false });
+    videoBox.addEventListener('touchend', function () { distanzaIniziale = null; });
+    // Rotellina del mouse sull'anteprima (PC)
+    videoBox.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        impostaZoom(parseFloat(zoomSlider.value) + (e.deltaY < 0 ? 1 : -1) * parseFloat(zoomSlider.step) * 2);
+    }, { passive: false });
+
+    // --- Scatto ------------------------------------------------------------------------------
+    // Dove supportato usa ImageCapture.takePhoto(), che restituisce la foto alla risoluzione
+    // piena del sensore (spesso molto più alta dello stream video); altrimenti usa il
+    // fotogramma corrente del video.
+    // Su alcuni dispositivi takePhoto() non risponde mai: dopo qualche secondo si ripiega sul video.
+    function conTimeout(promessa, ms) {
+        return Promise.race([promessa, new Promise(function (_, reject) {
+            setTimeout(function () { reject(new Error('timeout')); }, ms);
+        })]);
+    }
+
+    function sorgenteScatto() {
+        if (imageCapture && imageCapture.takePhoto) {
+            return conTimeout(imageCapture.takePhoto().then(function (blob) { return createImageBitmap(blob); }), 5000)
+                .catch(function (e) { console.log('takePhoto non disponibile, uso il fotogramma video:', e); return video; });
+        }
+        return Promise.resolve(video);
+    }
+
+    // Lato massimo dell'immagine inviata. Oltre questa soglia la lettura del seriale non migliora,
+    // mentre l'invio da rete mobile diventa molto lento (una foto da 4096 px pesa 2-4 MB).
+    // Per inquadrare un seriale piccolo conviene usare lo zoom, che ritaglia prima di ridurre.
+    var LATO_MASSIMO = 2560;
+
+    function rendiJpeg(sorgente) {
+        var larghezza = sorgente.videoWidth || sorgente.width;
+        var altezza = sorgente.videoHeight || sorgente.height;
+        // Zoom digitale: ritaglio centrale alla risoluzione nativa
+        var sw = Math.round(larghezza / zoomDigitale), sh = Math.round(altezza / zoomDigitale);
+        var sx = Math.round((larghezza - sw) / 2), sy = Math.round((altezza - sh) / 2);
+        var scala = Math.min(1, LATO_MASSIMO / Math.max(sw, sh));
+        canvas.width = Math.round(sw * scala);
+        canvas.height = Math.round(sh * scala);
+        context.drawImage(sorgente, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+        // JPEG ad alta qualità: ad alta risoluzione un PNG supererebbe facilmente i limiti di Google Vision
+        return new Promise(function (resolve, reject) {
+            canvas.toBlob(function (blob) { blob ? resolve(blob) : reject(new Error('immagine non generata')); },
+                          'image/jpeg', 0.9);
+        });
+    }
+
+    var snapButton = document.getElementById('snapButton');
+
+    function ripristinaPulsante() {
+        snapButton.disabled = false;
+        snapButton.textContent = 'Scatta una Foto';
+    }
+
+    function takeSnapshot() {
+        if (video.videoWidth === 0 || video.videoHeight === 0) {
+            alert("Errore: la fotocamera non sta trasmettendo correttamente. Riprova.");
+            return;
+        }
+        snapButton.disabled = true;
+        snapButton.textContent = 'Scatto in corso...';
+
+        sorgenteScatto()
+            .then(function (sorgente) {
+                // Se la foto a piena risoluzione non si riesce a convertire, riprova con il fotogramma video
+                return rendiJpeg(sorgente).catch(function (e) {
+                    if (sorgente === video) { throw e; }
+                    console.log('Conversione della foto non riuscita, uso il fotogramma video:', e);
+                    return rendiJpeg(video);
+                });
+            })
+            .then(function (blob) {
+                var file = new File([blob], 'scatto_foto.jpg', { type: 'image/jpeg' });
+                var dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                imageInput.files = dataTransfer.files;
+                snapButton.textContent = 'Invio in corso (' + (blob.size / 1048576).toFixed(1) + ' MB)...';
+                mostraStatoCamera('Invio della foto in corso: con connessioni lente può richiedere alcuni secondi, non chiudere la pagina.');
+                form.submit();
+            })
+            .catch(function (e) {
+                console.log('Scatto non riuscito:', e);
+                mostraStatoCamera('Scatto non riuscito (' + e.message + '). Riprova oppure usa "Carica una foto".');
+                ripristinaPulsante();
+            });
+    }
+
+    document.getElementById('snapButton').addEventListener('click', takeSnapshot);
+
+    cameraSelect.addEventListener('change', function () {
+        avviaStream(cameraSelect.value).catch(function (error) {
+            mostraStatoCamera('Impossibile usare questa fotocamera: ' + error.name + '. Scegline un\'altra.');
+        });
+    });
+
+    // Alternativa alla fotocamera: carica un'immagine dal dispositivo e invia subito il form
+    document.getElementById('uploadButton').addEventListener('click', function () { imageInput.click(); });
+    imageInput.addEventListener('change', function () {
+        if (imageInput.files.length) { form.submit(); }
+    });
+
+    startCamera();
+</script>
+
+{% endblock %}

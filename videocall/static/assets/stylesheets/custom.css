@@ -1,0 +1,193 @@
+/* put your own styles to customize and override the theme */
+#mynetwork {
+    width: 90% !important;
+}
+
+#cruscotto_ul > li > a {
+    color: black;
+    font-size: large;
+}
+#cruscotto_ul > li {
+    text-align: left;
+
+}
+#cruscotto_ul > li > a.active{
+    color: #346cb0;
+    margin-left: -14px;
+}
+
+#cruscotto_ul > li > a:hover {
+    color: #346cb0;
+}
+
+#cruscotto_ul {
+    list-style-type: none;
+}
+
+#cruscotto, #action_explorer {
+    display: inline-block;
+}
+
+#cruscotto {
+
+}
+#add_typology_btn{
+    color:white;
+}
+
+form#updateNodoForm > input:last-of-type, form#rename_process_form > input:last-of-type, form#rename_ticket_form > input:last-of-type  {
+    margin-bottom: 10px;
+}
+input#input_container_value {
+    margin-bottom: 5px;
+}
+
+.action-play-body{
+    margin:auto;
+    margin-bottom: 20px;
+}
+#insert_new_action_popup {
+    height: fit-content;
+    width: fit-content;
+}
+#insert_new_action_popup > div > button {
+    margin-bottom: 5px;
+    width: 100%;
+}
+.action-configuration-btn{
+    margin-bottom: 20px;
+}
+.new-action-icon{
+    height:30px;
+    margin-right:10px;
+}
+#messageBtn{
+
+}
+.new-action-btn{
+    text-align:left;
+        height:2rem;
+    cursor: pointer;
+    text-decoration-style: solid;
+
+}
+.new-action-btn:hover {
+    text-decoration: underline;
+}
+.close{
+    text-align: right;
+    position: absolute;
+    right: 10px;
+    top: 0px;
+}
+button.dropdown-item.form-control.btn.btn-secondary:hover {
+    color: black;
+}
+.card {
+    padding: 15px;
+}
+a.text-white:hover {
+    color: #346cb0!important;
+}
+#side-menu{
+    display: block;
+ }
+.frontone_element {
+    display: inline-block;
+}
+.left {
+    float: left;
+    margin-left: 15px;
+}
+.home_frontone_img{
+    height:64px;
+}
+.counter{
+    text-align:left;
+    font-size: xx-large;
+    margin-bottom: 0px;
+}
+.vr{
+    border-left:1px solid lightgray;
+    height:64px;
+    display: inline-block;
+}
+.frontone_element{
+    width: 20%;
+    cursor: pointer;
+}
+#operativo>div>h3{
+    font-size: 24px;
+    color:black;
+}
+#operativo{
+    margin-top: 40px;
+}
+.hr{
+    border-top: 2px solid lightblue;
+    width: 85px;
+    margin-bottom: 30px;
+}
+div#action_table {
+    margin-top: 40px;
+}
+#cruscotto_ul{
+    margin: 0 25%;
+}
+#action_explorer > h3 {
+    text-align: left;
+}
+#pager{
+    text-align: left;
+}
+#pager ul{
+    list-style: none;
+    padding-left: 7px;
+}
+#pager ul li{
+    margin: 0 5px;
+    cursor: pointer;
+    display: inline-block;
+}
+#pager ul li.active{
+    text-decoration: underline;
+}
+#process_ticket_action_selector .form-group > select{
+    width:100%;
+
+}
+footer{
+    color: white;
+}
+.priority.bassa{
+    color: green;
+}
+.priority.media{
+    color: orange;
+}
+.priority.alta{
+    color: red;
+}
+.table.table-striped.dataTable > thead > tr > th:after {
+    content: none !important;
+}
+.table.table-striped.dataTable > thead > tr > th:before {
+    content: none !important;
+}
+.permission-rolegroup-box{
+    padding-bottom: 20px!important;
+}
+.copypaste_button{
+    display: none;
+}
+form > input {
+    width: 100%
+}
+.card{
+    width: 100%;
+    /*margin-bottom: 10%;*/
+}
+
+.card_padding.card{
+    margin-bottom: 10%;
+}

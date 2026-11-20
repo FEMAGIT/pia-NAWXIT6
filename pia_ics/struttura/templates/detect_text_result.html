@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1>Testo Rilevato</h1>
+    {% if detected_texts %}
+        <ul>
+        {% for text in detected_texts %}
+            <li>
+                <strong>Testo:</strong> {{ text.description }}<br>
+                <strong>Confini:</strong> {{ text.bounds }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nessun testo rilevato.</p>
+    {% endif %}
+    <a href="{% url 'struttura:Validate' assistenza_id=assistenza.id %}">Carica un'altra immagine</a>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% load render_table from django_tables2 %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='slim' %}
+{% bootstrap_messages %}
+
+        {% block content_body %}
+            <div class="container mt-5">
+                    <div class="table-responsive">
+
+                        {% if button %}
+
+                            <a href="{{button.link}}" role="button" class="{{ button.classToAdd}} btn btn-mn"> {{button.text}} </a>
+
+                        {% endif %}
+
+                            {% render_table table %}
+                    </div>
+
+            </div>
+       {% endblock %}
+    {% block javascript_body %}
+    {% if delete_AJAX or send_mail_AJAX %}
+          <script>
+                var csrf_token ='{{ csrf_token }}'
+                {% if delete_AJAX  %}
+                    var delete_AJAX= '{{ delete_AJAX }}'
+                {% endif %}
+                {% if  send_mail_AJAX %}
+                    var send_mail_AJAX= '{{ send_mail_AJAX }}'
+                {% endif %}
+          </script>
+
+          <script src="{% static 'js/ajax.js' %}"></script>
+
+
+    {% endif %}
+
+
+    {% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Assistenze{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1>ASSISTENZA</h1>
+
+        <div class="card">
+            <div class="card-header justify-content-end">
+                <a href="{% url 'struttura:QRcodefilter' %}">
+                    <button class="btn btn-dark mr-2"><i class="fas fa-plus mr-2"></i> FILTRA PER MACCHINA CON QR CODE
+                    </button>
+                </a>
+                {% if user_is_admin %}
+                <a href="https://icsvideocall.dyrecta.com/">
+                    <button class="btn btn-dark mr-2"><i class="fas fa-plus mr-2"></i> CONTROL ROOM</button>
+                </a>
+                {% endif %}
+                {% if user_is_client or user_is_admin %}
+                <a href="{% url 'struttura:assistenza_crea' %}">
+                    <button class="btn btn-dark"><i class="fas fa-plus mr-2"></i> ASSISTENZA TECNICA</button>
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="table-responsive">
+                        <table id="assistenze-table"
+                               class="table table-sm table-bordered dataTables_wrapper dt-bootstrap4 no-footer"
+                               style="width: 100% !important;">
+                            <thead>
+                            <tr>
+                                <th>Titolo</th>
+                                <th>Descrizione</th>
+                                <th>Data</th>
+                                <th>Stato</th>
+                                <th>Azioni</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchValue = urlParams.get('search');
+
+        const table = $('#assistenze-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                "url": "{% url 'struttura:assistenza_datatables' %}",
+                "type": 'GET',
+                "data": {'role': 'ASSISTENZA'}
+            },
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.10.20/i18n/Italian.json"
+            },
+            "columnDefs": [
+                {"width": "15%", "targets": 0},
+                {"width": "32%", "targets": 1},
+                {"width": "19%", "targets": 2},
+                {"width": "16%", "targets": 3},
+                {"width": "18%", "targets": 4, "orderable": false},
+            ],
+            "order": []
+        });
+
+        if (searchValue) {
+            table.search(searchValue).draw();
+        }
+
+        $('#assistenze_dropdown').addClass('active');
+        $('#assistenze_toggle').addClass('toggled');
+        $('#assistenze-list').addClass('active');
+    });
+
+        function DeleteAssistenza(pk) {
+            Swal.fire({
+                title: "Sei sicuro?",
+                text: "Una volta eliminata non sarà più possibile accedere all'informazione!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Conferma',
+                cancelButtonText: 'Annulla',
+            }).then((willDelete) => {
+                if (willDelete.value) {
+                    $.ajax({
+                        type: 'POST',
+                        data: {
+                            'pk': pk,
+                            'method': 'del',
+                        },
+                        url: '{% url "struttura:assistenza_elimina" 0 %}'.replace('0', pk),
+                        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                        success: function (response) {
+                            Swal.fire("Fatto!", response.response, "success")
+                                .then(() => {
+                                    location.reload();
+                                });
+                        },
+                        error: () => {
+                            Swal.fire("Attenzione!", "Si è verificato un errore durante l'eliminazione.", "error");
+                        }
+                    });
+                } else if (willDelete.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire(
+                        'Annullato',
+                        'Rimozione annullata.',
+                        'error'
+                    );
+                }
+            });
+        }
+</script>
+
+{% endblock %}

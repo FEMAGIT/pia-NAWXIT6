@@ -1,0 +1,11 @@
+ {% load static %}<!-- .btn-account -->
+              <div class="dropdown">
+                  <button class="btn-account d-none d-md-flex" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="user-avatar user-avatar-md"><img src="{% static 'assets/images/avatars/profile.jpg' %}" alt=""></span> <span class="account-summary pr-lg-4 d-none d-lg-block"><span class="account-name"><script>document.write(localStorage.getItem("username"));</script></span> <span class="account-description">Benvenuto!</span></span></button>
+                <div class="dropdown-arrow dropdown-arrow-left"></div>
+                <!-- .dropdown-menu -->
+                <div class="dropdown-menu">
+                  {# <a class="dropdown-item" href="{% url 'manage_account' %}"><span class="dropdown-icon oi oi-person"></span> il Mio Profilo</a> <a class="dropdown-item" href="{% url 'logout' %}"><span class="dropdown-icon oi oi-account-logout"></span> Logout</a>#}
+                 <!-- <div class="dropdown-divider"></div><a class="dropdown-item" href="#!">FAQ</a> <a class="dropdown-item" href="#!">Chiedi Aiuto</a>-->
+                </div>
+                <!-- /.dropdown-menu -->
+              </div><!-- /.btn-account -->

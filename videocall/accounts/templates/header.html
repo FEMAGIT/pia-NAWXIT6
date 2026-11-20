@@ -1,0 +1,399 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- End Required meta tags -->
+    <!-- Begin SEO tag -->
+    <title> OcchioEsperto </title>
+    <meta property="og:title" content="Page With Navs">
+    <meta property="og:locale" content="it_IT">
+    <meta name="description" content="OcchioEsperto">
+    <meta property="og:description" content="dyrectalab">
+
+    <!-- End SEO tag -->
+    <!-- vis.js-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- vis.js-->
+
+    <link rel="stylesheet" type="text/css" href="{% static '/assets/javascript/jquery.dataTables.css' %}">
+
+    <!--  WIZARD ACTIONFORM  -->
+    {#    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">#}
+    {#    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>#}
+    {#    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>#}
+    {#    <link rel="stylesheet" href="{% static '/assets/stylesheets/snippets.css'%}">#}
+
+    <!-- FAVICONS -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/apple-touch-icon.png">
+    <link rel="shortcut icon" href="{% static '/assets/favicon.ico' %}">
+    <meta name="theme-color" content="#3063A0">
+    <!-- End FAVICONS -->
+    <!-- GOOGLE FONT -->
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600" rel="stylesheet">
+
+
+    <!-- End GOOGLE FONT -->
+
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
+    <link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+    <!-- BEGIN PLUGINS STYLES -->
+    <link rel="stylesheet" href="{% static '/assets/vendor/open-iconic/css/open-iconic-bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor/fontawesome/css/all.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/vendor/flatpickr/flatpickr.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/stylesheets/apexcharts.css' %}">
+    <!-- END PLUGINS STYLES -->
+    <!-- BEGIN THEME STYLES -->
+    <link data-skin="default" href="{% static '/assets/stylesheets/theme.min.css' %}">
+    <link data-skin="dark" href="{% static '/assets/stylesheets/theme-dark.min.css' %}">
+    <link rel="stylesheet" href="{% static '/assets/stylesheets/custom.css' %}"><!-- END THEME STYLES -->
+
+    <script src="{% static '/assets/vendor/chart.js/Chart.min.js' %}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
+
+    <style>
+        body {
+            display: none;
+            /*background-color: #191927;*/
+        }
+
+        /* put your own styles to customize and override the theme */
+
+        /* LETIZIA */
+
+        #mynetwork {
+            width: 90% !important;
+        }
+
+        #cruscotto_ul > li > a {
+            color: black;
+            font-size: large;
+        }
+
+        #cruscotto_ul > li {
+            text-align: left;
+
+        }
+
+        #cruscotto_ul > li > a.active {
+            color: #346cb0;
+            margin-left: -14px;
+        }
+
+        #cruscotto_ul > li > a:hover {
+            color: #346cb0;
+        }
+
+        #cruscotto_ul {
+            list-style-type: none;
+        }
+
+        #cruscotto, #action_explorer {
+            display: inline-block;
+        }
+
+        #cruscotto {
+
+        }
+
+        #add_typology_btn {
+            color: white;
+        }
+
+        form#updateNodoForm > input:last-of-type, form#rename_process_form > input:last-of-type, form#rename_ticket_form > input:last-of-type {
+            margin-bottom: 10px;
+        }
+
+        input#input_container_value {
+            margin-bottom: 5px;
+        }
+
+        .action-play-body {
+            margin: auto;
+            margin-bottom: 20px;
+        }
+
+        #insert_new_action_popup {
+            height: fit-content;
+            width: fit-content;
+        }
+
+        #insert_new_action_popup > div > button {
+            margin-bottom: 5px;
+            width: 100%;
+        }
+
+        .action-configuration-btn {
+            margin-bottom: 20px;
+        }
+
+        .new-action-icon {
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        #messageBtn {
+
+        }
+
+        .new-action-btn {
+            text-align: left;
+            height: 2rem;
+            cursor: pointer;
+            text-decoration-style: solid;
+
+        }
+
+        .new-action-btn:hover {
+            text-decoration: underline;
+        }
+
+        .close {
+            text-align: right;
+            position: absolute;
+            right: 10px;
+            top: 0px;
+        }
+
+        button.dropdown-item.form-control.btn.btn-secondary:hover {
+            color: black;
+        }
+
+        .card {
+            padding: 15px;
+        }
+
+        a.text-white:hover {
+            color: #346cb0 !important;
+        }
+
+        #side-menu {
+            display: block;
+        }
+
+        .frontone_element {
+            display: inline-block;
+        }
+
+        .left {
+            float: left;
+            margin-left: 15px;
+        }
+
+        .home_frontone_img {
+            height: 64px;
+        }
+
+        .counter {
+            text-align: left;
+            font-size: xx-large;
+            margin-bottom: 0px;
+        }
+
+        .vr {
+            border-left: 1px solid lightgray;
+            height: 64px;
+            display: inline-block;
+        }
+
+        .frontone_element {
+            width: 20%;
+            cursor: pointer;
+        }
+
+        #operativo > div > h3 {
+            font-size: 24px;
+            color: black;
+        }
+
+        #operativo {
+            margin-top: 40px;
+        }
+
+        .hr {
+            border-top: 2px solid lightblue;
+            width: 85px;
+            margin-bottom: 30px;
+        }
+
+        div#action_table {
+            margin-top: 40px;
+        }
+
+        #cruscotto_ul {
+            margin: 0 25%;
+        }
+
+        #action_explorer > h3 {
+            text-align: left;
+        }
+
+        #pager {
+            text-align: left;
+        }
+
+        #pager ul {
+            list-style: none;
+            padding-left: 7px;
+        }
+
+        #pager ul li {
+            margin: 0 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        #pager ul li.active {
+            text-decoration: underline;
+        }
+
+        #process_ticket_action_selector .form-group > select {
+            width: 100%;
+
+        }
+
+        footer {
+            color: white;
+        }
+
+        .priority.bassa {
+            color: green;
+        }
+
+        .priority.media {
+            color: orange;
+        }
+
+        .priority.alta {
+            color: red;
+        }
+
+        .table.table-striped.dataTable > thead > tr > th:after {
+            content: none !important;
+        }
+
+        .table.table-striped.dataTable > thead > tr > th:before {
+            content: none !important;
+        }
+
+        .permission-rolegroup-box {
+            padding-bottom: 20px !important;
+        }
+
+        .copypaste_button {
+            display: none;
+        }
+
+        form > input {
+            width: 100%
+        }
+
+        .card {
+            width: 100%;
+            /*margin-bottom: 10%;*/
+        }
+
+        .card_padding.card {
+            margin-bottom: 10%;
+        }
+
+        .app-header {
+            height: 7rem !important;
+            border-bottom: 2px solid #fff;
+        }
+
+        .app-header-dark {
+            background-color: #000;
+        }
+
+        .table tbody tr {
+            background-color: #fff;
+        }
+
+        .table td, .table th {
+            vertical-align: middle !important;
+        }
+
+        .table-container {
+            box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
+        }
+
+        .btn-call::before {
+            padding-right: 10px;
+        }
+
+        .app-main {
+            padding-top: 7rem;
+        }
+
+        table.table thead {
+            text-transform: uppercase;
+        }
+
+        .table thead th {
+            color: #f6f7f9;
+            background-color: #222230;
+            border-color: #323246;
+        }
+
+        @media (min-width: 768px) {
+            .app-main {
+                padding-left: 0rem;
+            }
+        }
+
+        @media (max-height: 992px) {
+            .page {
+                min-height: calc(100vh - 7rem);
+            }
+        }
+
+
+    </style>
+
+</head>
+<body>
+<!-- .app -->
+<div class="app">
+    <!--[if lt IE 10]>
+    <div class="page-message" role="alert">You are using an <strong>outdated</strong> browser. Please <a
+            class="alert-link" href="http://browsehappy.com/">upgrade your browser</a> to improve your experience and
+        security.
+    </div>
+    <![endif]-->
+    <!-- .app-header -->
+    <header class="app-header app-header-dark row justify-content-md-center align-items-center shadow">
+        <!-- .top-bar -->
+        <img src="{% static '/assets/control-room-logo.png' %}" alt="" style="height: 55px;" class="img-fluid">
+
+    </header><!-- /.app-header -->
+
+   {# {% include "menu_app-side.html" %} #}
+
+    <!-- .app-main -->
+    <main class="app-main">
+        <!-- .wrapper -->
+        <div class="wrapper">
+            <!-- .page -->
+            <div class="page">
+                <!-- .page-navs -->
+                <!-- { include "menu_new.html" }-->
+                <!-- .page-inner -->
+                <div class="page-inner">
+                    <!-- .page-title-bar -->
+                    <!--<header class="page-title-bar">
+                    </header>-->

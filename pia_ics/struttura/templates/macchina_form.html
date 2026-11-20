@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block content %}
+
+
+<div class="card">
+    <div class="card-header">
+        <h2>{% if object %}MODIFICA MACCHINA{% else %}NUOVA MACCHINA{% endif %}</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-12">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group row mb-0">
+                        <div class="col-xs-12 col-md-1 "></div>
+                        <label class="col-xs-12 col-sm-1 col-form-label text-left text-sm-right" for="{{ form.identificativo.auto_id }}">
+                            {{ form.identificativo.label }}
+                        </label>
+                        <div class="col-xs-12 col-12 col-sm-4 col-md-4 col-lg-4">
+                            {{ form.identificativo }}
+                        </div>
+
+                        <label class="col-xs-12 col-sm-1 col-form-label text-left text-sm-right" for="{{ form.descrmacchina.auto_id }}">
+                            {{ form.descrmacchina.label }}
+                        </label>
+                        <div class="col-12 col-xs-12 col-sm-4 col-md-4 col-lg-4">
+                            {{ form.descrmacchina }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="form-group row mt-2 mb-4">
+                        <div class="col-xs-12 col-md-1 "></div>
+                        <label class="col-xs-12 col-sm-1 col-form-label text-left text-sm-right" for="{{ form.tipo_macchina.auto_id }}">
+                            {{ form.tipo_macchina.label }}
+                        </label>
+                        <div class="col-xs-12 col-12 col-sm-4 col-md-4 col-lg-4">
+                            {{ form.tipo_macchina }}
+                        </div>
+                        <label class="col-xs-12 col-sm-1 col-form-label text-left text-sm-right" for="{{ form.tipo_macchina.auto_id }}">
+                            {{ form.cliente.label }}
+                        </label>
+                        <div class="col-xs-12 col-12 col-sm-4 col-md-4 col-lg-4">
+                            {{ form.cliente }}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row mb-2 area-description-custom mb-4">
+                        <div class="col-12 col-xs-12 col-md-2 col-lg-2 text-md-right">
+                            <label class="col-form-label field-mofica-custom" for="{{ form.desctipomacchina.auto_id }}">
+                                {{ form.desctipomacchina.label }}
+                            </label>
+                        </div>
+                        <div class="col-12 col-xs-12 col-sm-8 col-md-9">
+                            {{ form.desctipomacchina }}
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row mt-5 justify-content-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-create-custom fw-bold">Salva</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+
+
+
+

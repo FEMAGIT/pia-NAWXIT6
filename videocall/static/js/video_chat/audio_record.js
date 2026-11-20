@@ -1,0 +1,15 @@
+const constraints = {
+    audio: true
+};
+
+function handleSuccess(stream) {
+    document.querySelector('audio').srcObject = stream;
+}
+
+function handleError(error) {
+    console.log('getUserMedia error: ', error);
+}
+
+navigator.mediaDevices.getUserMedia(constraints)
+    .then(handleSuccess)
+    .catch(handleError);

@@ -1,0 +1,95 @@
+{% load static %}
+
+<!-- .app-aside -->
+      <aside class="app-aside app-aside-light">
+        <!-- .aside-content -->
+        <div class="aside-content">
+          <!-- .aside-header -->
+          <header class="aside-header d-block d-md-none">
+            <!-- .btn-account -->
+            <button class="btn-account" type="button" data-toggle="collapse" data-target="#dropdown-aside"><span class="user-avatar user-avatar-lg">
+<img src="{% static 'assets/images/avatars/profile.jpg' %}" alt=""></span> <span class="account-icon">
+<span class="fa fa-caret-down fa-lg"></span></span> <span class="account-summary"> <span class="account-description">Benvenuto!</span></span></button>
+            <!-- .dropdown-aside -->
+            <div id="dropdown-aside" class="dropdown-aside collapse">
+              <!-- dropdown-items -->
+              <div class="pb-3">
+                {#<a class="dropdown-item" href="{% url 'manage_account' %}"><span class="dropdown-icon oi oi-person"></span>Il mio Profilo</a> <a class="dropdown-item" href="{% url 'logout' %}"><span class="dropdown-icon oi oi-account-logout"></span> Logout</a>#}
+                <!--<div class="dropdown-divider"></div><a class="dropdown-item" href="#!">FAQ</a> <a class="dropdown-item" href="#!">Chiedi Aiuto</a>-->
+              </div><!-- /dropdown-items -->
+            </div><!-- /.dropdown-aside -->
+          </header><!-- /.aside-header -->
+          <!-- .aside-menu -->
+          <section class="aside-menu">
+            <!-- .stacked-menu -->
+            <nav id="stacked-menu" class="stacked-menu">
+              <!-- .menu -->
+              <ul class="menu">
+                <!-- .menu-item -->
+                <li class="menu-item" id="home_menu">
+                  <a href="" class="menu-link"><i class="menu-icon fas fa-home"></i> <span class="menu-text" id="home_text">Home</span></a>
+                  <!--<a href="" class="menu-link"><span class="menu-icon fa fa-home"></span> <span class="menu-text">Home</span></a>-->
+                </li><!-- /.menu-item -->
+                <!-- .menu-item
+                <li class="menu-item has-child">
+                  <a href="#" class="menu-link"><span class="menu-icon far fa-file"></span> <span class="menu-text">App Pages</span> <span class="badge badge-warning">New</span></a>  child menu -->
+                  {% if request.session.user_admin == True %}
+
+                    <li class="menu-item" id="admin_processes_management_menu">
+                        <a href="{% url 'admin_processes_management' %}" class="menu-link"><i class="menu-icon fas fa-cogs"></i> <span class="menu-text" id="admin_processes_management_text">Gestione Processi</span></a>
+                    </li>
+                    <li class="menu-item has-child" id="admin_statistics_menu">
+                        <a href="{% url 'admin_statistics' %}" class="menu-link"> <i class="menu-icon fas fa-chart-line"></i> <span class="menu-text" id="admin_statistics_text">Statistiche</span></a> <!-- grand child menu -->
+					</li>
+                    <li class="menu-item" id="admin_BI_menu">
+                        <a href="{% url 'admin_BI' %}" class="menu-link"><i class="menu-icon fas fa-briefcase"></i> <span class="menu-text" id="admin_BI_text">Business Intelligence</span></a>
+                    </li>
+                    <li class="menu-item" id="admin_anomalies_detection_menu">
+                        <a href="{% url 'admin_anomalies_detection' %}" class="menu-link"><i class="menu-icon fab fa-searchengin"></i><span class="menu-text" id="admin_anomalies_detection_text">Anomalies detection</span></a>
+                    </li>
+                    <li class="menu-item" id="admin_users_menu">
+                        <a href="{% url 'admin_users' %}" class="menu-link"><i class="menu-icon fas fa-users"></i> <span class="menu-text" id="admin_users_text">Utenti</span></a>
+                    </li>
+                    <li class="menu-item" id="admin_roles_menu">
+                        <a href="{% url 'admin_roles' %}" class="menu-link"><i class="menu-icon fas fa-user-circle"></i> <span class="menu-text" id="admin_roles_text">Ruoli</span></a>
+                    </li>
+                    <li class="menu-item" id="admin_groups_menu">
+                        <a href="{% url 'admin_groups' %}" class="menu-link"><i class="menu-icon fas fa-layer-group"></i> <span class="menu-text" id="admin_groups_text">Gruppi</span></a>
+                    </li>
+					<li class="menu-item" id="admin_organization_chart_menu">
+                        <a href="{% url 'admin_organization_chart' %}" class="menu-link"><i class="menu-icon fas fa-sitemap"></i> <span class="menu-text" id="admin_organization_chart_text">Organigramma</span></a>
+                     </li>
+					<li class="menu-item" id="admin_dashboard_menu">
+                        <a href="{% url 'admin_dashboard' %}" class="menu-link"><i class="menu-icon fas fa-tachometer-alt"></i> <span class="menu-text" id="admin_dashboard_text">Dashboard</span></a>
+                    </li>
+                   <li class="menu-item" id="media_summary_menu">
+                       <a class="menu-link" href="{% url 'media_summary' %}"><i class="menu-icon fas fa-clipboard-list"></i> <span class="menu-text" id="media_summary_text">Media Summary</span></a>
+                   </li>
+                   <li class="menu-item" id="alert_list_menu">
+                       <a class="menu-link" href="{% url 'alert_list' %}"><i class="menu-icon fas fa-exclamation-triangle"></i> <span class="menu-text" id="alert_list_text">Lista Alert</span></a>
+                   </li>
+                    <li class="menu-item" id="report_building_site_menu">
+                       <a class="menu-link" href="{% url 'report_building_site' %}"><i class="menu-icon fab fa-accusoft"></i><span class="menu-text" id="report_building_site_text">Report Cantieri</span></a>
+                   </li>
+                   <li class="menu-item" id="report_worker_presence_menu">
+                       <a class="menu-link" href="{% url 'report_worker_presence' %}"><i class="menu-icon fas fa-male"></i><span class="menu-text" id="report_worker_presence_text">Report Presenza Operai</span></a>
+                   </li>
+                   <li class="menu-item" id="admin_videocall_menu">
+                       <a href="{% url 'admin_videocall' %}" class="menu-link"><i class="menu-icon fas fa-headset"></i> <span class="menu-text" id="admin_videocall_text">Videochiama Occhialini</span></a>
+                   </li>
+
+                  <!--<li class="menu-item">-->
+                      <!--<a class="menu-link" href="{% url 'weekly_report' %}"><i class="menu-icon fas fa-list-ul"></i> <span class="menu-text">Report Settimanale</span></a>-->
+                    <!--</li>-->
+
+                 <!-- </ul>--><!-- /child menu -->
+                  {% endif %}
+                <!-- /.menu-item -->
+                <!-- .menu-item -->
+
+
+              </ul><!-- /.menu -->
+            </nav><!-- /.stacked-menu -->
+          </section><!-- /.aside-menu -->
+        </div><!-- /.aside-content -->
+      </aside><!-- /.app-aside -->

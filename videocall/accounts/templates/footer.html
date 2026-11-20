@@ -1,0 +1,187 @@
+{% load static %}
+
+</main><!-- /.app-main -->
+</div><!-- /.app -->
+<!-- BEGIN BASE JS -->
+<!-- BEGIN BASE JS -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<!--    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>-->
+<script src="{% static '/assets/javascript/apexcharts.min.js' %}"></script>
+<script src="{% static '/assets/vendor/jquery/jquery.min.js'%}"></script>
+<script src="{% static '/assets/vendor/bootstrap/js/popper.min.js'%}"></script>
+<script src="{% static '/assets/vendor/bootstrap/js/bootstrap.min.js'%}"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+{#<script src="{% static '/assets/javascript/snippets.js' %}"></script>#}
+
+
+<!-- END BASE JS -->
+<!-- BEGIN PLUGINS JS -->
+<script src="{% static '/assets/vendor/pace/pace.min.js'%}"></script>
+<script src="{% static '/assets/vendor/stacked-menu/stacked-menu.min.js'%}"></script>
+<!--<script src="{ static '/assets/vendor/perfect-scrollbar/perfect-scrollbar.min.js' }"></script> -->
+<script src="{% static '/assets/vendor/flatpickr/flatpickr.min.js'%}"></script>
+<script src="{% static '/assets/vendor/easy-pie-chart/jquery.easypiechart.min.js'%}"></script>
+<!-- END PLUGINS JS -->
+<!-- BEGIN THEME JS -->
+<script src="{% static '/assets/javascript/theme.min.js'%}"></script>
+<!-- END THEME JS -->
+<!-- END PAGE LEVEL JS -->
+
+<script type="text/javascript" charset="utf8" src="{% static '/assets/javascript/jquery.dataTables.js'%}"></script>
+
+
+</body>
+</html>
+<!-- Loader Animation -->
+<div id="loader_animation">
+
+    <img src="{% static 'ticketing/loader.svg' %}" alt="Loader Animation">
+</div>
+<!-- End Loader Animation -->
+
+<!-- .app-footer -->
+<footer class="app-footer">
+
+    <div class="copyright"> Copyright © 2018. Tutti i diritti riservati.</div>
+</footer><!-- /.app-footer -->
+
+<!--Loader Animation Script-->
+<script type="text/javascript">
+
+    function showLoader(content_to_disable, form_to_submit) {
+        console.log(content_to_disable);
+        console.log(form_to_submit);
+
+        var form = document.getElementById(form_to_submit);
+
+        if (content_to_disable == 'ticket_editor') {
+            document.getElementById("myModal").style.display = 'none';
+        }
+
+        var loader = document.getElementById("loader_animation");
+        loader.style.display = 'block';
+        var content = document.getElementById(content_to_disable);
+        content.classList.add('disabledButton');
+
+        form.submit();
+    }
+
+</script>
+<!-- End Loader Animation Script -->
+
+
+<!-- Loader Animation CSS-->
+<style>
+    /* center the loader */
+    #loader_animation {
+        display: none;
+        position: fixed;
+        left: 45%;
+        top: 30%;
+        margin: 0 auto;
+        z-index: 1;
+    }
+
+    .disabledButton {
+        pointer-events: none;
+        opacity: 0.4;
+    }
+</style>
+<!-- End Loader Animation CSS-->
+
+{% if alert_msg is not None %}
+<div id="alert_msg" onclick="hide('alert_msg')" class="page-message" role="alert" style="display:none">
+    <i class="fa fa-fw fa-exclamation-triangle"></i>&nbsp;
+    <strong>ATTENZIONE:</strong>
+    &ensp; <span id="alert_msg_text">{{ alert_msg }}</span>
+    <a class="btn btn-sm btn-icon btn-warning ml-1" aria-label="Close" onclick="$(this).parent().fadeOut()">
+        <span aria-hidden="true"><i class="fa fa-times"></i></span>
+    </a>
+</div>
+
+<script>
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.getElementById("alert_msg").textContent.includes(":)")) {
+            $("#alert_msg").css("background-color", "var(--success)").css("color", "white");
+            $("#alert_msg > i").removeClass("fa fa-fw fa-exclamation-triangle").addClass("oi oi-thumb-up");
+            $("#alert_msg > a").removeClass("btn-warning");
+            $("#alert_msg > strong").text($("#alert_msg > strong").text().replace('ATTENZIONE', 'OTTIMO '));
+            $("#alert_msg_text").text($("#alert_msg_text").text().replace(':)', ''));
+        }
+        if (document.getElementById("alert_msg").textContent.includes(":(")) {
+            $("#alert_msg").css("background-color", "var(--red)").css("color", "white");
+            $("#alert_msg > i").removeClass("fa fa-fw fa-exclamation-triangle").addClass("fa fa-fw fa-times");
+            $("#alert_msg > a").removeClass("btn-warning");
+            $("#alert_msg > strong").text($("#alert_msg > strong").text().replace('ATTENZIONE', 'ERRORE '));
+            $("#alert_msg_text").text($("#alert_msg_text").text().replace(':(', ''));
+        }
+
+        if ($("#alert_msg_text").text() != "") {
+            $("#alert_msg").fadeIn();
+        }
+
+    });
+
+
+    var seconds = 5;
+
+    function fade(element) {
+        var op = 1;  // initial opacity
+        var timer = setInterval(function () {
+            if (op <= 0.1) {
+                clearInterval(timer);
+                element.style.display = 'none';
+            }
+            element.style.opacity = op;
+            element.style.filter = 'alpha(opacity=' + op * 100 + ")";
+            op -= op * 0.1;
+        }, 50);
+    }
+
+    function hide_div() {
+        fade(document.getElementById("alert_msg"));
+    }
+
+    //  setTimeout("hide_div()", 1000 * seconds);
+</script>
+
+{% endif %}
+
+<script>
+    function myfonction() {
+
+        if (typeof (network) != "undefined") network.fit();
+    }
+
+    setTimeout(myfonction, 500);
+</script>
+
+<div id="alert_msg_invocation" class="page-message" role="alert" style="display:none">
+    <i class="fa fa-fw fa-exclamation-triangle"></i>&nbsp;
+    <strong>ATTENZIONE:</strong>
+    &ensp; <span id="alert_msg_invocation_text"></span>
+    <a class="btn btn-sm btn-icon btn-warning ml-1" aria-label="Close" onclick="$(this).parent().fadeOut()">
+        <span aria-hidden="true"><i class="fa fa-times"></i></span>
+    </a>
+</div>
+
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+</script>

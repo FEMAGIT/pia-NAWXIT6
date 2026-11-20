@@ -1,0 +1,113 @@
+# =============================================================================
+# OCR Detector - configurazione
+# -----------------------------------------------------------------------------
+# Flusso: 1) trova il testo
+#         2) raggruppa in ROI
+#         3) raddrizza la ROI
+#         4) leggi il testo.
+# I percorsi sono relativi alla cartella ocr_detector/.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Avvio
+# -----------------------------------------------------------------------------
+# Struttura dei risultati (X = clahe, otsu o none):
+#   risultati/preprocessing_X/<cartella>/<foto>/        output di ogni foto (inference.py e evaluate.py)
+#   risultati/preprocessing_X/valutazione_<nome>.csv    (+ _testi.csv; evaluate.py)
+#   risultati/confronto_preprocessing.csv               una riga per insieme e pre-elaborazione
+
+# inference.py: foto da elaborare (file e/o cartelle) e dove salvare i risultati.
+# Usa la pre-elaborazione in recognition.preprocessing.
+run:
+  images:
+    - images/original
+  output_dir: risultati                   # null = nessun salvataggio, solo stampa
+
+# evaluate.py: ogni insieme è elaborato con ogni pre-elaborazione in `preprocessings`.
+evaluation:
+  output_dir: risultati                   # null = solo stampa
+  preprocessings: [none, clahe, otsu]     # pre-elaborazioni da confrontare (none, clahe, otsu)
+  # Con ground truth (testo trascritto a mano): output + metriche (CSV).
+  datasets:
+    - name: val_images                    # 5 foto del progetto (lama, cuscinetti, motore)
+      ground_truth: evaluation/ground_truth_val_images.json
+      images_dir: images/val_images
+  # Senza ground truth: solo output di ogni foto, per la valutazione visiva.
+  visual_only:
+    - name: original                      # 9 foto del progetto (cuscinetti, lama, motore)
+      images_dir: images/original
+
+# -----------------------------------------------------------------------------
+# Modello OCR (passi 1 e 4): PP-OCRv4 (PaddleOCR), eseguito con onnxruntime
+# tramite rapidocr-onnxruntime. Valori predefiniti di PP-OCR.
+# -----------------------------------------------------------------------------
+model:
+  limit_side_len: 1280                    # passo 1: lato massimo dell'immagine data al detector
+  binarization_threshold: 0.3             # soglia sulla mappa di probabilità "è testo"
+  box_threshold: 0.5                      # confidenza minima di un box
+  unclip_ratio: 1.6                       # quanto allargare il box attorno al testo
+  read_limit_side_len: 2000               # passo 4: la ROI è già a scala giusta, si riduce solo se enorme
+  text_score: 0.5                         # confidenza minima per tenere un testo letto
+  num_threads: -1                         # -1 = automatico
+
+# -----------------------------------------------------------------------------
+# 1) Rilevamento del testo: tiling.
+# -----------------------------------------------------------------------------
+tiling:
+  # Per le foto grandi si analizzano anche tile a piena risoluzione,
+  # così il testo piccolo non sparisce nella riduzione.
+  tile_size: 1024                         # 0 = tiling disattivato
+  tile_overlap: 0.25                      # sovrapposizione: una riga tagliata in una tile è intera nell'altra
+  duplicate_overlap: 0.6                  # box contenuti per >60% in un altro = stesso testo visto due volte
+
+# -----------------------------------------------------------------------------
+# 2-3) Raggruppamento in ROI e raddrizzamento.
+# -----------------------------------------------------------------------------
+roi:
+  grouping_distance: 2.0                  # box vicini = distanti meno di 2 altezze di riga
+                                          # (l'interlinea tipica è 0.2-0.5 righe: 2 lascia margine)
+  max_rois: 40                            # ROI lette al massimo per foto (le più ricche di testo): un
+                                          # limite di sicurezza sul tempo, non un filtro (un'etichetta
+                                          # logistica ha 9-16 zone separate da codici a barre)
+  # raddrizzamento
+  direction_tolerance_deg: 10             # box entro 10° = stessa direzione (si sceglie la prevalente)
+  min_line_aspect_ratio: 2.0              # solo i box allungati (righe) indicano una direzione
+  target_text_height: 48                  # altezza di riga dopo il raddrizzamento (ingresso del
+                                          # riconoscitore PP-OCR)
+  max_scale: 4.0                          # ingrandimento massimo (oltre si interpola solo rumore)
+  padding_text_heights: 1.5               # margine attorno al testo: il detector ha bisogno di
+                                          # sfondo attorno alle righe per separarle dal bordo
+  max_output_side: 4000                   # protezione contro ROI enormi
+
+# -----------------------------------------------------------------------------
+# 4) Lettura della ROI raddrizzata.
+# -----------------------------------------------------------------------------
+recognition:
+  # Pre-elaborazione prima dell'OCR:
+  #   clahe -> equalizzazione locale del contrasto: correzione leggera, utile con
+  #            luce non uniforme, non cancella testo        (predefinita)
+  #   otsu  -> bianco/nero con soglia unica: utile solo per stampa netta su fondo
+  #            uniforme; su metallo e riflessi cancella il testo
+  #   none  -> immagine così com'è
+  preprocessing: clahe
+  try_upside_down: true                   # legge anche la ROI capovolta e tiene la lettura migliore
+  full_image_fallback: true               # nessun testo rilevato -> si legge la foto intera
+
+# -----------------------------------------------------------------------------
+# Altro
+# -----------------------------------------------------------------------------
+input:
+  extensions: [".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"]   # usate quando si indica una cartella
+
+logging:
+  level: INFO
+
+# Cosa salvare in risultati/ per ogni foto (se output_dir non è null). result.json è sempre salvato.
+# Valori: true / false (non "none": in YAML è un testo e conta come attivo).
+export:
+  save_debug: true                        # debug.json: posizione di ogni testo nella foto
+  save_images: true                       # overview.jpg e roi_N.png per il controllo visivo, più
+                                          # roi_N_preprocessed.png (dopo clahe/otsu) se il
+                                          # preprocessing non è none
+  max_overview_side: 1600
+  jpeg_quality: 90

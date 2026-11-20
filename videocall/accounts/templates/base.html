@@ -1,0 +1,79 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% load render_table from django_tables2 %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='slim' %}
+{% bootstrap_messages %}
+
+{% block stylesheet %}
+   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+{% block stylesheet_body %}{% endblock %}
+{% endblock %}
+{% block content %}
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="navbar-container">
+          <a class="navbar-brand" href="{%url 'home'%}"><img src="{% static 'images/logo-white.png' %}" height="70" /></a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav"><!--<ul class="navbar-nav ml-auto">-->
+            {% if request.user.is_superuser %}
+              <li class="nav-item {% if user_tab %}active{% endif %}">
+                <a class="nav-link" href="{% url 'user_list' %}">Utenti</a>
+                {% if user_tab %} <span class="sr-only">(current) </span>{% endif %}
+              </li>
+
+              <li class="nav-item {% if video_user_tab %}active{% endif %}">
+                <a class="nav-link" href="{% url 'video_user_list' %}">Utenti Esterni</a>
+                {% if video_user_tab %} <span class="sr-only">(current) </span>{% endif %}
+              </li>
+
+            {% endif %}
+
+              <li class="nav-item {% if chat_tab %}active{% endif %}">
+                <a class="nav-link" href="{% url 'video_chat' %}">Chat</a>
+                {% if chat_tab %} <span class="sr-only">(current) </span>{% endif %}
+              </li>
+
+            </ul>
+
+            <ul class="navbar-nav ml-auto nav-icn">
+              <!--<li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-bell"></i><span class="message">4</span></a></li> -->
+               <!--<li><i class="fas fa-file-invoice pr-4 pl-3"></i></li>-->
+               <li class="nav-item">
+
+                 <a class="dropdown-toggle nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   <i class="fas fa-user-circle"></i> <span>Benvenuto, {{ request.user.first_name}} {{ request.user.last_name}} </span></a>
+
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="{% url 'user' request.user.pk %}">Il Mio Profilo( {{ request.user.username}} )</a>
+                  <a class="dropdown-item" href="{% url 'change_password' %}">Cambia la Password</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Esci</a>
+                </div>
+
+            </li>
+            </ul>
+          </div>
+
+        </div>
+      </nav>
+
+    </header>
+
+
+          {% block content_body %}
+          {% endblock %}
+
+
+
+{% endblock %}
+
+  {% block javascript %}
+    {% block javascript_body %}
+    {% endblock %}
+
+  {% endblock %}

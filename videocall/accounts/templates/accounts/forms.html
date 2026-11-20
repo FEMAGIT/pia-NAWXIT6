@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% load qr_code %}
+{% load bootstrap4 %}
+
+
+{% block content_body %}
+
+        <div class="container">
+          <div class="row">
+            <div class="col">
+                <form method="post" class="viewform" > {% csrf_token %}
+                    {% bootstrap_form form error_css_class='is-invalid' %}
+                    <input type="hidden" name="next" value="{{ next }}" />
+                    <div class="col-6">
+                        {% buttons %}
+                            <input type="submit" class="form-control btn btn-primary btn-lg mt-4" value="{{button_text}}"/>
+                        {% endbuttons %}
+                    </div>
+
+
+                </form>
+            </div>
+              {% if qrcode_text %}
+                <div class="col-6" align="center">
+                    <div class="row" align="center" >
+                        <div class="col-12" align="center" id="qrcode-container" >
+                        {% qr_from_text qrcode_text image_format="png" size="M" border=6  error_correction='H'  %}
+                        </div>
+                         <div class="col-12" align="center">
+                             <a href="#" class=" btn btn-primary btn-lg mt-4" onclick="this.href = $('#qrcode-container img:first').attr('src');" download>Scarica</a>
+                        </div>
+                     </div>
+                </div>
+              {% endif %}
+
+          </div>
+        </div>
+
+
+
+
+
+
+{% endblock %}

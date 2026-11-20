@@ -1,0 +1,113 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='slim' %}
+{% bootstrap_messages %}
+
+
+{% block content %}
+
+	<div class="container-login100">
+			<div class="wrap-login100 login">
+
+
+				<form  id="form1" class="login100-form validate-form" method="post">  {% csrf_token %}
+
+
+					<span class="login100-form-title p-b-48 pb-4">
+						<!--<i class="zmdi zmdi-font"></i>-->
+						<img src="{% static 'images/logo.png' %}" height="100" />
+					</span>
+
+
+					{% if form.email_or_username %}
+						<div class="wrap-input100 validate-input">
+							{{ form.email_or_username}}
+							<span class="focus-input100" data-placeholder="Username/Email"></span>
+						</div>
+
+					{% endif %}
+
+
+					{% if form.username %}
+						<div class="wrap-input100 validate-input" data-validate = "Valid email is: a@b.c">
+							{{ form.username}}
+							<span class="focus-input100" data-placeholder="Username"></span>
+						</div>
+
+					{% endif %}
+
+
+					{% if form.old_password %}
+					<div class="wrap-input100 validate-input" data-validate="Enter password">
+							<span class="btn-show-pass">
+								<i class="zmdi zmdi-eye"></i>
+							</span>
+							{{ form.old_password}}
+							<span class="focus-input100" data-placeholder="Vecchia Password"></span>
+						</div>
+					{% endif %}
+
+
+					{% if form.password %}
+						<div class="wrap-input100 validate-input" data-validate="Enter password">
+							<span class="btn-show-pass">
+								<i class="zmdi zmdi-eye"></i>
+							</span>
+							{{ form.password}}
+							<span class="focus-input100" data-placeholder="Password"></span>
+						</div>
+					{% endif %}
+
+					{% if form.confirm_password %}
+					<div class="wrap-input100 validate-input" data-validate="Enter password">
+							<span class="btn-show-pass">
+								<i class="zmdi zmdi-eye"></i>
+							</span>
+							{{ form.confirm_password}}
+							<span class="focus-input100" data-placeholder="Reinserisci la Password"></span>
+						</div>
+					{% endif %}
+
+
+
+
+
+
+                    	<input type="hidden" name="next" value="{{ next }}" />
+
+
+							{% buttons %}
+							<div class="container-login100-form-btn">
+								<div class="wrap-login100-form-btn">
+									<div class="login100-form-bgbtn"></div>
+									<button type="submit" class="login100-form-btn"  form="form1">
+										{{button_text}}
+									</button>
+								</div>
+							</div>
+                        {% endbuttons %}
+						{% if state %}
+							<div id="infoMessageRed"><p>{{state}}</p></div>
+						{% endif %}
+
+
+
+
+					<div class="text-center pt-5">
+
+						<a class="txt2" href="{% url 'reset_password' %}">
+							Password Dimenticata?
+						</a>
+					</div>
+				</form>
+
+
+			</div>
+		</div>
+	
+
+	<div id="dropDownSelect1"></div>
+
+{% endblock %}

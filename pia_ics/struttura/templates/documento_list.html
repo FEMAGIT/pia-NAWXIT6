@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Documenti per Macchina{% endblock %}
+
+{% block content %}
+<h1>Documenti per Macchina</h1>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="documento-table"
+                   class="table table-sm table-bordered dataTables_wrapper dt-bootstrap4 no-footer" style="width: 100% !important;">
+                <thead>
+                <tr>
+                    <th>Nome Documento</th>
+                    <th>Tipo Macchina</th>
+                    <th>Azioni</th>
+                </tr>
+                </thead>
+                <tbody>
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#documento-table').dataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                "url": "{% url 'struttura:documento_datatables' %}?tipo_macchina_id=" + {{ tipo_macchina_id }},
+                "type": 'GET',
+            },
+            columns: [
+                { data: 'nome_documento' },
+                { data: 'tipo_macchina' },
+                { data: 'azioni' }
+            ],
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.10.20/i18n/Italian.json"
+            },
+            columnDefs: [
+                {"targets": 2, "orderable": false}
+            ],
+            "order": []
+        });
+    });
+</script>
+
+{% endblock %}
